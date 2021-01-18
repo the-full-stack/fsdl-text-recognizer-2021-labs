@@ -1,0 +1,10 @@
+name: fsdl-text-recognizer-2021
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - cudatoolkit=10.1
+  - cudnn=7.6
+  - pip
+  - pip:
+    - pip-tools

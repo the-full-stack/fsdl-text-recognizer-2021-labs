@@ -1,0 +1,51 @@
+# Data
+data/downloaded
+data/processed
+data/interim
+data/raw/emnist/matlab*
+data/raw/fsdl_handwriting/pages
+data/raw/iam/iamdb
+data/raw/iam/iamdb.zip
+data/raw/nltk
+
+# Logs
+training/logs
+
+# Editors
+.vscode
+
+# Node
+node_modules
+
+# Python
+__pycache__
+.pytest_cache
+.ipynb_checkpoints
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# W&B
+wandb
+
+# Misc
+.DS_Store
+_labs
+logs
+.mypy_cache
+notebooks/lightning_logs

@@ -1,0 +1,19 @@
+-c prod.txt
+bandit
+black
+editdistance
+itermplot
+jupyterlab
+matplotlib
+mypy
+nltk
+pycodestyle
+pydocstyle
+pylint
+pytest
+pyyaml
+tornado
+safety
+scipy
+pillow
+wandb

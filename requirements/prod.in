@@ -1,0 +1,12 @@
+boltons
+editdistance
+flask
+h5py
+numpy
+opencv-python-headless>=4.4
+pytorch-lightning
+requests
+toml
+torch
+torchvision
+tqdm
