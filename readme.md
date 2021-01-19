@@ -14,7 +14,7 @@ Project developed during lab sessions of the [Full Stack Deep Learning Bootcamp]
 
 Sequence:
 
-- [Setup](setup.md)
+- [Setup](setup/readme.md)
 - [Lab 1](lab1/readme.md): Introduction to the codebase by training a simple character predictor.
 - [Lab 2](lab2/readme.md): Introduce EMNIST, make a syntehtic dataset, and try to recognize text.
 - [Lab 3](lab3/readme.md): LSTM + CTC based approach to line text recognition.
