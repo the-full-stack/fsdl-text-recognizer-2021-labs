@@ -1,28 +1,19 @@
-# Lab 1: Single-character prediction
+# Lab 1: Basic project structure for recognizing MNIST
+
+To go through the main project structure in place, let's train an MLP on MNIST data.
+
+We will cover:
+
+- Project structure
+- A simple PyTorch MLP model
+- PyTorch-Lightning based training
+- A single point of entry to running experiments: `python3 run_experiment.py`
 
 ## Before you begin, make sure to set up!
 
 Please complete [Lab Setup](/setup.md) before proceeding!
 
-## Lab 1: Basic project structure for recognizing MNIST
-
-To get all of the project structure in place, let's train an MLP on MNIST data.
-
-We show:
-
-- Basic directory layout
-- PyTorch MLP and LeNet models
-- PyTorch-Lightning based training
-- A single point of entry to running experiments: `python run_experiment.py`
-  - `python training/run_experiment.py --max_epochs=10 --gpus='0,1' --accelerator=ddp --num_workers=20 --model_class=lenet.LeNet`
-- Logs in Tensorboard: `tensorboard --logdir=training/logs`
-
-Tasks:
-
-Try different MLP architectures.
-Paste your MLP architecture and the training output into Gradescope.
-
-## Follow along
+Then, in the `fsdl-text-recognizer-2021-labs` repo, let's pull the latest changes, and enter the lab1 directory.
 
 ```
 git pull
@@ -31,79 +22,108 @@ cd lab1/
 
 ## Directory Structure
 
+In our labs, we will be building a code base incrementally.
+Each week, a new lab will be released, showing more of the codebase.
+
+Today, we start with the bare minimum:
+
+```sh
+(fsdl-text-recognizer-2021) ➜  lab1 git:(main) ✗ tree -I "logs|admin|wandb|__pycache__"
+.
+├── readme.md
+├── text_recognizer
+│   ├── data
+│   │   ├── base_data_module.py
+│   │   ├── __init__.py
+│   │   ├── mnist.py
+│   │   └── util.py
+│   ├── __init__.py
+│   ├── lit_models
+│   │   ├── base.py
+│   │   └── __init__.py
+│   ├── models
+│   │   ├── __init__.py
+│   │   └── mlp.py
+│   └── util.py
+└── training
+    ├── __init__.py
+    └── run_experiment.py
+```
+
+We can see that the main breakdown of the codebase is between `text_recognizer` and `training`.
+
+The former, `text_recognizer`, should be thought of as a Python package that we are developing and will eventually deploy in some way.
+
+The latter, `training`, should be thought of as support code for developing `text_recognizer`, which currently consists simply of `run_experiment.py`.
+
+Within `text_recognizer`, there is further breakdown between `data`, `models`, and `lit_models`.
+
+Let's go through them in sequence.
+
 ### Data
 
-There are three scopes of our code dealing with data, with slightly overlapping names.
-Let's go through them from the top down to make sure we understand the pattern.
+There are three scopes of our code dealing with data, with slightly overlapping names: `DataModule`, `DataLoader`, and `Dataset`.
 
-At the top level are `DataModule` classes.
-They are responsible for:
-- Downloading raw data from information specified in `data/raw/<dataset_name>/metadata.toml`  (or generating data, for synthetic datasets)
-- Splitting data into train/val/test sets
+At the top level are `DataModule` classes, which are responsible for quite a few things:
+
+- Downloading raw data and/or generating synthetic data
 - Processing data as needed to get it ready to go through PyTorch models
+- Splitting data into train/val/test sets
+- Specifying dimensions of the inputs (e.g. `(C, H, W) float tensor`
+- Specifying information about the targets (e.g. a class mapping)
 - Specifying data augmentation transforms to apply in training
-- Specifying dimensions of the input data (e.g. `(C, H, W) float tensor` and any semantic information about the targets (e.g. a mapping for how an integer maps to characters)
-- Wrapping underlying data in a `torch Dataset`, which simply returns individual data instances after optionally processing them with a transform function.
-- Wrapping the `torch Dataset` in a `torch DataLoader`, which samples batches and delivers them to the GPU.
 
-To avoid writing same old boilerplate for all of our data sources, we define a simple base class `text_recognizer.data.BaseDataModule` which in turn inherits from `pl.LightningDataModule`.
-This inheritance will let us use the data very simply with PyTorch Lightning `Trainer` and avoid common problems with distributed training.
+In the process of doing the above, `DataModule`s make use of a couple of other classes:
 
-More details about how PyTorch deals with data are at https://pytorch.org/docs/stable/data.html.
-More details about `LightningDataModule` are at https://pytorch-lightning.readthedocs.io/en/latest/datamodules.html
+1. They wrap underlying data in a `torch Dataset`, which returns individual (and optionally, transformed) data instances.
+2. They wrap the `torch Dataset` in a `torch DataLoader`, which samples batches, shuffles their order, and delivers them to the GPU.
 
-### Model
+If need be, you can read more about these [PyTorch data interfaces](https://pytorch.org/docs/stable/data.html).
 
-There are two scopes of our code dealing with models: `model`s and `lit_model`s.
+To avoid writing same old boilerplate for all of our data sources, we define a simple base class `text_recognizer.data.BaseDataModule` which in turn inherits from [`pl.LightningDataModule`](https://pytorch-lightning.readthedocs.io/en/latest/datamodules.html).
+This inheritance will let us use the data very simply with PyTorch-Lightning `Trainer` and avoid common problems with distributed training.
 
-## Intro to EMNIST
+### Models
 
-- EMNIST = Extended Mini-NIST :)
-- All English letters and digits presented in the MNIST format.
-- Look at: `notebooks/01-look-at-emnist.ipynb`
+Models are what is commonly known as "neural nets": code that accepts an input, processes it through layers of computations, and produces an output.
 
-## Networks and training code
+Most importantly, the code is partially written (the architecture of the neural net), and partially **learned** (the parameters, or weights, of all the layers in the architecture).
+Therefore, the computation of the model must be back-propagatable.
 
-```
-- text_recognizer/networks/mlp.py
-- text_recognizer/networks/lenet.py
-- text_recognizer/models/base.py
-- text_recognizer/models/character_model.py
-- training/util.py
-```
+Since we are using PyTorch, all of our models sublcass `torch.nn.Module`, which makes them learnable in this way.
 
-## Train MLP and CNN
+### Lit Models
 
-You can run the shortcut command `tasks/train_character_predictor.sh`, which runs the following:
+We use PyTorch-Lightning for training, which defines the `LightningModule` interface that handles not only everything that a Model (as defined above) handles, but also specifies the details of the learning algorith: what loss should be computed from the output of the model and the ground truth, which optimizer should be used, with what learning rate, etc.
+
+## Training
+
+Now we understand enough to train.
+
+Our `training/run_experiment.py` is a script that handles many command-line parameters.
+
+Here's a command we can run:
 
 ```sh
-training/run_experiment.py --save \
-  '{"dataset": "EmnistDataset", "model": "CharacterModel", "network": "mlp",  "train_args": {"batch_size": 256}}'
+python3 training/run_experiment.py --model_class=MLP --data_class=MNIST --max_epochs=5 --gpus=1
 ```
 
-It will take a couple of minutes to train your model.
+While `model_class` and `data_class` are our own arguments, `max_epochs` and `gpus` are arguments automatically picked up from `pytorch_lightning.Trainer`.
+You can use any other `Trainer` flag (see [docs](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html#trainer-flags)) on the command line, for example `--batch_size=512`.
 
-Just for fun, you could also try a larger MLP, with a smaller batch size:
+The `run_experiment.py` script also picks up command-line flags from the model and data classes that are specified.
+For example, in `text_recognizer/models/mlp.py` we specify the `MLP` class, and add a couple of command-line flags: `--fc1` and `--fc2`.
+
+Accordingly, we can run
 
 ```sh
-training/run_experiment.py \
-  '{"dataset": "EmnistDataset", "model": "CharacterModel", "network": "mlp", "network_args": {"num_layers": 8}, "train_args": {"batch_size": 128}}'
+python3 training/run_experiment.py --model_class=MLP --data_class=MNIST --max_epochs=5 --gpus=1 --fc1=4 --fc2=8
 ```
 
-## Testing
+And watch the model fail to achieve high accuracy due to too few parameters :)
 
-First, let's take a look at how the test works at
+## Homework
 
-```
-text_recognizer/tests/test_character_predictor.py
-```
-
-Now let's see if it works by running:
-
-```sh
-pytest -s text_recognizer/tests/test_character_predictor.py
-```
-
-Or, use the shorthand `tasks/test_functionality.sh`
-
-Testing should finish quickly.
+- Try `training/run_experiment.py` with different MLP hyper-parameters (e.g. `--fc1=128 --fc2=64`).
+- Try editing the MLP architecture in `text_recognizers/models/mlp.py`
+- Explain what you did and paste your training output into Gradescope Assignment 1.

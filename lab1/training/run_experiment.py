@@ -32,7 +32,7 @@ def _setup_parser():
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
 
     # Basic arguments
-    parser.add_argument("--data_class", type=str, default="MNISTDataModule")
+    parser.add_argument("--data_class", type=str, default="MNIST")
     parser.add_argument("--model_class", type=str, default="MLP")
 
     # Get the data and model classes, so that we can add their specific arguments
@@ -60,7 +60,7 @@ def main():
 
     Sample command:
     ```
-    python training/run_experiment.py --max_epochs=3 --gpus='0,' --num_workers=20 --model_class=MLP --data_class=MNISTDataModule
+    python training/run_experiment.py --max_epochs=3 --gpus='0,' --num_workers=20 --model_class=MLP --data_class=MNIST
     ```
     """
     parser = _setup_parser()
