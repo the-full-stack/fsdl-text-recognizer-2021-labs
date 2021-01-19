@@ -14,6 +14,8 @@ attrs==20.3.0
     # via aiohttp
 boltons==20.2.1
     # via -r requirements/prod.in
+cached-property==1.5.2
+    # via h5py
 cachetools==4.2.0
     # via google-auth
 certifi==2020.12.5
@@ -24,6 +26,8 @@ chardet==3.0.4
     #   requests
 click==7.1.2
     # via flask
+dataclasses==0.8
+    # via torch
 editdistance==0.5.3
     # via -r requirements/prod.in
 flask==1.1.2
@@ -42,10 +46,15 @@ grpcio==1.34.1
     # via tensorboard
 h5py==3.1.0
     # via -r requirements/prod.in
+idna-ssl==1.1.0
+    # via aiohttp
 idna==2.10
     # via
+    #   idna-ssl
     #   requests
     #   yarl
+importlib-metadata==3.4.0
+    # via markdown
 itsdangerous==1.1.0
     # via flask
 jinja2==2.11.2
@@ -58,7 +67,7 @@ multidict==5.1.0
     # via
     #   aiohttp
     #   yarl
-numpy==1.19.4
+numpy==1.19.5
     # via
     #   -r requirements/prod.in
     #   h5py
@@ -69,9 +78,9 @@ numpy==1.19.4
     #   torchvision
 oauthlib==3.1.0
     # via requests-oauthlib
-opencv-python-headless==4.4.0.46
+opencv-python-headless==4.5.1.48
     # via -r requirements/prod.in
-pillow==8.0.1
+pillow==8.1.0
     # via torchvision
 protobuf==3.14.0
     # via tensorboard
@@ -115,14 +124,16 @@ torch==1.7.1
     #   torchvision
 torchvision==0.8.2
     # via -r requirements/prod.in
-tqdm==4.55.0
+tqdm==4.56.0
     # via
     #   -r requirements/prod.in
     #   pytorch-lightning
 typing-extensions==3.7.4.3
     # via
     #   aiohttp
+    #   importlib-metadata
     #   torch
+    #   yarl
 urllib3==1.26.2
     # via requests
 werkzeug==1.0.1
@@ -133,6 +144,8 @@ wheel==0.36.2
     # via tensorboard
 yarl==1.6.3
     # via aiohttp
+zipp==3.4.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

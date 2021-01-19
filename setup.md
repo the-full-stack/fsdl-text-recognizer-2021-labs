@@ -1,5 +1,17 @@
 # Setup
 
+## On Google Colab
+
+Paste this into the first cell and run it.
+
+```
+# FSDL Spring 2021 Setup
+!git clone https://github.com/full-stack-deep-learning/fsdl-text-recognizer-2021-labs
+%cd fsdl-text-recognizer-2021-labs
+!pip install pytorch_lightning
+%env PYTHONPATH=.:$PYTHONPATH
+```
+
 ## 1. Check out the repo
 
 You should already have the repo in your home directory. Go into it and make sure you have the latest.

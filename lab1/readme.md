@@ -13,7 +13,7 @@ We show:
 - Basic directory layout
 - PyTorch MLP and LeNet models
 - PyTorch-Lightning based training
-- A single point of entry to running experiments: `python training/run_experiment.py`
+- A single point of entry to running experiments: `python run_experiment.py`
   - `python training/run_experiment.py --max_epochs=10 --gpus='0,1' --accelerator=ddp --num_workers=20 --model_class=lenet.LeNet`
 - Logs in Tensorboard: `tensorboard --logdir=training/logs`
 

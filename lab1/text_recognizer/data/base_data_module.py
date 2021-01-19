@@ -1,5 +1,6 @@
 """Base DataModule class."""
 from pathlib import Path
+from typing import Dict
 import argparse
 import os
 
@@ -21,15 +22,18 @@ def load_and_print_info(data_module_class: type) -> None:
     print(dataset)
 
 
-def _download_raw_dataset(metadata):
-    if os.path.exists(metadata["filename"]):
+def _download_raw_dataset(metadata: Dict, dl_dirname: Path) -> Path:
+    dl_dirname.mkdir(parents=True, exist_ok=True)
+    filename = dl_dirname / metadata["filename"]
+    if filename.exists():
         return
-    print(f"Downloading raw dataset from {metadata['url']}...")
-    util.download_url(metadata["url"], metadata["filename"])
+    print(f"Downloading raw dataset from {metadata['url']} to {filename}...")
+    util.download_url(metadata["url"], filename)
     print("Computing SHA-256...")
-    sha256 = util.compute_sha256(metadata["filename"])
+    sha256 = util.compute_sha256(filename)
     if sha256 != metadata["sha256"]:
         raise ValueError("Downloaded data file SHA-256 does not match that listed in metadata document.")
+    return filename
 
 
 BATCH_SIZE = 128

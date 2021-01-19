@@ -1,7 +1,7 @@
 from typing import Any, Dict
 import argparse
-import math
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -21,7 +21,7 @@ class MLP(nn.Module):
         super().__init__()
         self.args = vars(args) if args is not None else {}
 
-        input_dim = math.prod(data_config["input_dims"])
+        input_dim = np.prod(data_config["input_dims"])
         num_classes = len(data_config["mapping"])
 
         fc1_dim = self.args.get("fc1", FC1_DIM)
