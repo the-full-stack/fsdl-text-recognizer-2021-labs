@@ -11,7 +11,7 @@ We will cover:
 
 ## Before you begin, make sure to set up!
 
-Please complete [Lab Setup](/setup.md) before proceeding!
+Please complete [Lab Setup](/setup/readme.md) before proceeding!
 
 Then, in the `fsdl-text-recognizer-2021-labs` repo, let's pull the latest changes, and enter the lab1 directory.
 
