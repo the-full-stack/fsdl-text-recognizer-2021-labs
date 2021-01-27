@@ -1,5 +1,11 @@
+import argparse
 import pytorch_lightning as pl
 import torch
+
+
+OPTIMIZER = "Adam"
+LR = 1e-3
+LOSS = "cross_entropy"
 
 
 class BaseLitModel(pl.LightningModule):
@@ -7,22 +13,29 @@ class BaseLitModel(pl.LightningModule):
     Generic PyTorch-Lightning class that must be initialized with a PyTorch module.
     """
 
-    def __init__(self, args, model):
+    def __init__(self, model, args: argparse.Namespace = None):
         super().__init__()
         self.model = model
-        self.optimizer_class = getattr(torch.optim, args.optimizer)
-        self.lr = args.lr
-        if not args.loss == "transformer":
-            self.loss_fn = getattr(torch.nn.functional, args.loss)
+        self.args = vars(args) if args is not None else {}
+
+        optimizer = self.args.get("optimizer", OPTIMIZER)
+        self.optimizer_class = getattr(torch.optim, optimizer)
+
+        self.lr = self.args.get("lr", LR)
+
+        loss = self.args.get("loss", LOSS)
+        if not loss == "transformer":
+            self.loss_fn = getattr(torch.nn.functional, loss)
+
         self.train_acc = pl.metrics.Accuracy()
         self.val_acc = pl.metrics.Accuracy()
         self.test_acc = pl.metrics.Accuracy()
 
     @staticmethod
     def add_to_argparse(parser):
-        parser.add_argument("--optimizer", type=str, default="Adam", help="optimizer class from torch.optim")
-        parser.add_argument("--lr", type=float, default=1e-3)
-        parser.add_argument("--loss", type=str, default="cross_entropy", help="loss function from torch.nn.functional")
+        parser.add_argument("--optimizer", type=str, default=OPTIMIZER, help="optimizer class from torch.optim")
+        parser.add_argument("--lr", type=float, default=LR)
+        parser.add_argument("--loss", type=str, default=LOSS, help="loss function from torch.nn.functional")
         return parser
 
     def configure_optimizers(self):

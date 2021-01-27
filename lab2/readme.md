@@ -29,14 +29,22 @@ cd lab2
 
 ## Intro to EMNIST
 
-- EMNIST = Extended Mini-NIST :)
-- All English letters and digits presented in the MNIST format.
-- Look at: `notebooks/01-look-at-emnist.ipynb`
+MNIST stands for Mini-NIST, where NIST is the National Institute of Standards and Technology, which compiled a dataset of handwritten digits and letters in the 1980s.
 
-Note that we now have a new directory in `lab2`: `notebooks`.
-While we don't do training of our models in notebooks, we use them for exploring the data, and perhaps presenting the results of our model training.
+MNIST is Mini because it only included digits.
+
+EMNIST is a repackaging of the original dataset, which also includes letters, but presented in the popularized MNIST format.
+You can see a publication about it here https://www.paperswithcode.com/paper/emnist-an-extension-of-mnist-to-handwritten
+
+We can take a look at the data in `notebooks/01-look-at-emnist.ipynb`.
+
+(Note that we now have a new directory in `lab2`: `notebooks`. While we don't do training of our models in notebooks, we use them for exploring the data, and perhaps presenting the results of our model training.)
 
 ### Brief aside: data directory structure
+
+
+You may have noticed that both MNIST and EMNIST download data from the Internet before training.
+Where is this data stored?
 
 ```
 (fsdl-text-recognizer-2021) ➜  lab2 git:(main) ✗ tree -I "lab*|__pycache__" ..
@@ -60,7 +68,7 @@ We specify the EMNIST dataset with `metadata.toml` and `readme.md` which contain
 
 We left off in Lab 1 having trained an MLP model on the MNIST digits dataset.
 
-We can train a CNN for the same purpose:
+We can now train a CNN for the same purpose:
 
 ```sh
 python3 training/run_experiment.py --model_class=CNN --data_class=MNIST --max_epochs=5 --gpus=1
@@ -94,7 +102,7 @@ python3 training/run_experiment.py --model_class=CNN --data_class=EMNIST --max_e
 One way we can make sure that our GPU stays consistently highly utilized is to do data pre-processing in separate worker processes, using the `--num_workers=X` flag.
 
 ```sh
-python3 training/run_experiment.py --model_class=CNN --data_class=EMNIST --max_epochs=50 --gpus=1 --num_workers=4
+python3 training/run_experiment.py --model_class=CNN --data_class=EMNIST --max_epochs=5 --gpus=1 --num_workers=4
 ```
 
 ## Making a synthetic dataset of EMNIST Lines
@@ -104,42 +112,21 @@ python3 training/run_experiment.py --model_class=CNN --data_class=EMNIST --max_e
 - For each character, sample random EMNIST character and place on a line (optionally, with some random overlap)
 - Look at: `notebooks/02-look-at-emnist-lines.ipynb`
 
-## Reading multiple characters at once
+## Homework
 
-Now that we have a dataset of lines and not just single characters, we can apply our convolutional net to it.
+Edit the `CNN` and `ConvBlock` architecture in `text_recognizers/models/cnn.py` in some ways.
 
-Let's look at `notebooks/02b-cnn-for-simple-emnist-lines.ipynb`, where we generate a dataset with at most 8 characters and no overlap.
+In particular, edit the `ConvBlock` module to be more like a ResNet block, as shown in the following image:
 
-## LineReshapeCNN
+![](./resblock.png)
 
-The first model we will try is a simple wrapper around `CNN` that applies it to each square slice of the input image in sequence: `LineReshapeCNN`
+Some other things to try:
 
-We can train this with
+- Try adding more of the ResNet secret sauce, such as `BatchNorm`. Take a look at the official ResNet PyTorch implementation for ideas: https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
+- Remove `MaxPool2D`, perhaps using a strided convolution instead.
+- Add some command-line arguments to make trying things a quicker process.
+- A good argument to add would be for the number of `ConvBlock`s to run the input through.
 
-```sh
-python training/run_experiment.py --max_epochs=5 --gpus=1 --num_workers=4 --data_class=EMNISTLines --max_length=16 --max_overlap=0 --model_class=LineReshapeCNN
-```
+Explain what you did, paste the contents of `cnn.py`, and paste your training output into the last question of Gradescope Assignment 2.
 
-We can easily get to >90% accuracy.
-
-## LineCNN
-
-The second model we will try is `LineCNN`: a fully-convolutional model.
-
-We can train it with
-
-```sh
-python training/run_experiment.py --max_epochs=5 --gpus=1 --num_workers=4 --data_class=EMNISTLines --max_length=16 --max_overlap=0 --model_class=LineCNN
-```
-
-We can easily get to >90% accuracy.
-
-## Decreasing accuracy on overlap
-
-However, our models will fail when presented with text that is not uniformly spaced:
-
-```sh
-python training/run_experiment.py --max_epochs=5 --gpus=1 --num_workers=4 --data_class=EMNISTLines --max_length=16 --max_overlap=0.33 --model_class=LineCNN
-```
-
-This only gets around 80% accuracy.
+As long as you tried a couple of things, you will receive full credit.
