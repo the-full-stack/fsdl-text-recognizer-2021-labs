@@ -1,20 +1,12 @@
 # Lab 2: Convolutional Neural Nets and Synthetic Lines
 
-We're working up to translating images of handwriting to text.
-In this lab, we're going to make synthetic data using the EMNIST dataset, and use Convolutional Neural Networks to first recognize EMNIST characters, and then translate whole lines.
-However, our approach will be brittle, and will fail when spacing between characters in a line is not exact.
-
-- EMNIST dataset
-- Synthetic fixed-length lines: `EMNISTLines` dataset
-- `LineReshapeCNN` model will succeed
-- Synthetic variable-length lines: `EMNISTLines` dataset
-- `LineReshapeCNN` will fail
-
 ## Goal of the lab
+
+We're working up to translating images of handwriting to text.
+In this lab, we're going to
 
 - Use a simple convolutional network to recognize EMNIST characters.
 - Construct a synthetic dataset of EMNIST lines.
-- Move from reading single characters to reading lines.
 
 ## Before you begin, make sure to set up!
 
