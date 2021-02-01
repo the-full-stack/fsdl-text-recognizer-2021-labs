@@ -7,7 +7,11 @@ If you have access to a computer that has an NVIDIA GPU and runs Linux, you're w
 
 If you don't, you can compute using [Goole Colab](#Colab).
 
+If you'd like to use Google Cloud Platform, we have a [tutorial](https://docs.google.com/document/d/1mSB_p1Chxg6IGYbuRxgPSA3Ps6BjhBZV7Ti3W_Qx0Ws/) for setting up an AI Platform Jupyter Lab instance for computing, which works quite well.
+
 ## Colab
+
+**[Watch As Video](https://www.loom.com/share/9c99c49fb9ca456bb0e56ccc098ae87a)**
 
 Google Colab is a great way to get access to fast GPUs for free.
 All you need is a Google account (Berkeley accounts will work).
@@ -72,7 +76,7 @@ You can sign up for a paid version of ngrok ($10/month) in order to get `https` 
 
 ## Local
 
-Setting up a machine you can sit in front of or SSH into can be done like this:
+Setting up a machine you can sit in front of or SSH into is easy.
 
 ### 1. Check out the repo
 
