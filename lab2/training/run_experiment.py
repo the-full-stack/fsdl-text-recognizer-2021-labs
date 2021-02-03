@@ -70,7 +70,8 @@ def main():
     data = data_class(args)
     model = model_class(data_config=data.config(), args=args)
 
-    lit_model = lit_models.BaseLitModel(model, args=args)
+    if args.loss not in ('ctc', 'transformer'):
+        lit_model = lit_models.BaseLitModel(model, args=args)
 
     loggers = [pl.loggers.TensorBoardLogger("training/logs")]
 
