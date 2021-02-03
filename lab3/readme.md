@@ -14,6 +14,36 @@ git pull
 cd lab3
 ```
 
+## New files
+
+```
+├── text_recognizer
+│   ├── data
+│   │   ├── base_data_module.py
+│   │   ├── emnist_essentials.json
+│   │   ├── emnist_lines.py
+│   │   ├── emnist.py
+│   │   ├── __init__.py
+│   │   ├── mnist.py
+│   │   ├── sentence_generator.py
+│   │   └── util.py
+│   ├── __init__.py
+│   ├── lit_models
+│   │   ├── base.py
+│   │   ├── ctc.py              <-- NEW
+│   │   ├── __init__.py
+│   │   ├── metrics.py          <-- NEW
+│   │   └── util.py             <-- NEW
+│   ├── models
+│   │   ├── cnn.py
+│   │   ├── __init__.py
+│   │   ├── line_cnn_lstm.py    <-- NEW
+│   │   ├── line_cnn.py         <-- NEW
+│   │   ├── line_cnn_simple.py  <-- NEW
+│   │   └── mlp.py
+│   └── util.py
+```
+
 ## LineCNNSimple: Reading multiple characters at once
 
 Now that we have a dataset of lines and not just single characters, we can apply our convolutional net to it.
