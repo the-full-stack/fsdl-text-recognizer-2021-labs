@@ -174,6 +174,8 @@ Play around with the hyperparameters of the CNN (`window_width`, `window_stride`
 
 Better yet, edit `LineCNN` to use residual connections and other CNN tricks, or just change its architecture in some ways, like you did for Lab 2.
 
+Feel free to edit `LineCNNLSTM` as well, get crazy with LSTM stuff!
+
 Describe what you did, paste code if appropriate, and what you learned.
 Doesn't have to be intense!
 
