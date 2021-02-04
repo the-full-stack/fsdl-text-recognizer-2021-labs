@@ -5,7 +5,7 @@ Specifically, NVIDIA GPUs, or Google TPUs.
 
 If you have access to a computer that has an NVIDIA GPU and runs Linux, you're welcome to [set it up](#Local) for local user.
 
-If you don't, you can compute using [Goole Colab](#Colab).
+If you don't, you can compute using [Google Colab](#Colab).
 
 If you'd like to use Google Cloud Platform, we have a [tutorial](https://docs.google.com/document/d/1mSB_p1Chxg6IGYbuRxgPSA3Ps6BjhBZV7Ti3W_Qx0Ws/) for setting up an AI Platform Jupyter Lab instance for computing, which works quite well.
 
