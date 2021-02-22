@@ -30,7 +30,7 @@ Now, paste the following into a cell and run it:
 # FSDL Spring 2021 Setup
 !git clone https://github.com/full-stack-deep-learning/fsdl-text-recognizer-2021-labs
 %cd fsdl-text-recognizer-2021-labs
-!pip install pytorch_lightning
+!pip install pytorch_lightning==1.1.4
 %env PYTHONPATH=.:$PYTHONPATH
 ```
 
