@@ -22,7 +22,7 @@ parameters:
   fc_dim:
     values: [512, 1024]
   tf_dim:
-    values: [256, 512]
+    values: [128, 256]
   tf_fc_dim:
     values: [256, 1024]
   tf_nhead:
@@ -31,8 +31,6 @@ parameters:
     values: [2, 4, 6]
   lr:
     values: [0.01, 0.001, 0.0003]
-  optimizer:
-    value: RAdam
   num_workers:
     value: 20
   gpus:

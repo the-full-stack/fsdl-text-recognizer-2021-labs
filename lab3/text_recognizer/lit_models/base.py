@@ -1,7 +1,6 @@
 import argparse
 import pytorch_lightning as pl
 import torch
-import torch_optimizer
 
 
 OPTIMIZER = "Adam"
@@ -21,10 +20,7 @@ class BaseLitModel(pl.LightningModule):
         self.args = vars(args) if args is not None else {}
 
         optimizer = self.args.get("optimizer", OPTIMIZER)
-        try:
-            self.optimizer_class = getattr(torch.optim, optimizer)
-        except AttributeError:
-            self.optimizer_class = getattr(torch_optimizer, optimizer)
+        self.optimizer_class = getattr(torch.optim, optimizer)
 
         self.lr = self.args.get("lr", LR)
 
