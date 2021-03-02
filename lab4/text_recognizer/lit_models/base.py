@@ -1,11 +1,13 @@
 import argparse
 import pytorch_lightning as pl
 import torch
+import torch_optimizer
 
 
 OPTIMIZER = "Adam"
 LR = 1e-3
 LOSS = "cross_entropy"
+ONE_CYCLE_TOTAL_STEPS = 100
 
 
 class BaseLitModel(pl.LightningModule):
@@ -19,13 +21,19 @@ class BaseLitModel(pl.LightningModule):
         self.args = vars(args) if args is not None else {}
 
         optimizer = self.args.get("optimizer", OPTIMIZER)
-        self.optimizer_class = getattr(torch.optim, optimizer)
+        try:
+            self.optimizer_class = getattr(torch.optim, optimizer)
+        except AttributeError:
+            self.optimizer_class = getattr(torch_optimizer, optimizer)
 
         self.lr = self.args.get("lr", LR)
 
         loss = self.args.get("loss", LOSS)
-        if not loss == "transformer":
+        if not loss in ("ctc", "transformer"):
             self.loss_fn = getattr(torch.nn.functional, loss)
+
+        self.one_cycle_max_lr = self.args.get("one_cycle_max_lr", None)
+        self.one_cycle_total_steps = self.args.get("one_cycle_total_steps", ONE_CYCLE_TOTAL_STEPS)
 
         self.train_acc = pl.metrics.Accuracy()
         self.val_acc = pl.metrics.Accuracy()
@@ -35,11 +43,17 @@ class BaseLitModel(pl.LightningModule):
     def add_to_argparse(parser):
         parser.add_argument("--optimizer", type=str, default=OPTIMIZER, help="optimizer class from torch.optim")
         parser.add_argument("--lr", type=float, default=LR)
+        parser.add_argument("--one_cycle_max_lr", type=float, default=None)
+        parser.add_argument("--one_cycle_total_steps", type=int, default=ONE_CYCLE_TOTAL_STEPS)
         parser.add_argument("--loss", type=str, default=LOSS, help="loss function from torch.nn.functional")
         return parser
 
     def configure_optimizers(self):
-        return self.optimizer_class(self.parameters(), lr=self.lr)
+        optimizer = self.optimizer_class(self.parameters(), lr=self.lr)
+        if self.one_cycle_max_lr is None:
+            return optimizer
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer=optimizer, max_lr=self.one_cycle_max_lr, total_steps=self.one_cycle_total_steps)
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val_loss"}
 
     def forward(self, x):
         return self.model(x)
