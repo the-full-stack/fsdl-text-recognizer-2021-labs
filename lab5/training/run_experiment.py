@@ -32,6 +32,10 @@ def _setup_parser():
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
 
     # Basic arguments
+    # Hide lines below until Lab 5
+    parser.add_argument("--wandb", action="store_true", default=False)
+    parser.add_argument("--load_checkpoint", type=str, default=None)
+    # Hide lines above until Lab 5
     parser.add_argument("--data_class", type=str, default="MNIST")
     parser.add_argument("--model_class", type=str, default="MLP")
 
@@ -76,6 +80,10 @@ def main():
     if args.loss == "ctc":
         lit_model_class = lit_models.CTCLitModel
     # Hide lines above until Lab 3
+    # Hide lines below until Lab 4
+    if args.loss == "transformer":
+        lit_model_class = lit_models.TransformerLitModel
+    # Hide lines above until Lab 4
 
     if args.load_checkpoint is not None:
         lit_model = lit_model_class.load_from_checkpoint(args.load_checkpoint, args=args, model=model)
@@ -83,6 +91,12 @@ def main():
         lit_model = lit_model_class(args=args, model=model)
 
     logger = pl.loggers.TensorBoardLogger("training/logs")
+    # Hide lines below until Lab 5
+    if args.wandb:
+        logger = pl.loggers.WandbLogger()
+        logger.watch(model)
+        logger.log_hyperparams(vars(args))
+    # Hide lines above until Lab 5
 
     callbacks = [pl.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)]
 

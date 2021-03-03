@@ -46,7 +46,7 @@ class BaseDataModule(pl.LightningDataModule):
     Learn more at https://pytorch-lightning.readthedocs.io/en/stable/datamodules.html
     """
 
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace = None) -> None:
         super().__init__()
         self.args = vars(args) if args is not None else {}
         self.batch_size = self.args.get("batch_size", BATCH_SIZE)
@@ -91,10 +91,10 @@ class BaseDataModule(pl.LightningDataModule):
         self.data_test = None
 
     def train_dataloader(self):
-        return DataLoader(self.data_train, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.data_train, shuffle=True, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
 
     def val_dataloader(self):
-        return DataLoader(self.data_val, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.data_val, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
 
     def test_dataloader(self):
-        return DataLoader(self.data_test, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.data_test, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)

@@ -1,5 +1,5 @@
 """Base Dataset class."""
-from typing import Any, Callable, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, Sequence, Tuple, Union
 import torch
 
 
@@ -63,3 +63,17 @@ class BaseDataset(torch.utils.data.Dataset):
             target = self.target_transform(target)
 
         return datum, target
+
+
+def convert_strings_to_labels(strings: Sequence[str], mapping: Dict[str, int], length: int) -> torch.Tensor:
+    """
+    Convert sequence of N strings to a (N, length) ndarray, with each string wrapped with <S> and <E> tokens,
+    and padded with the <P> token.
+    """
+    labels = torch.ones((len(strings), length), dtype=torch.long) * mapping["<P>"]
+    for i, string in enumerate(strings):
+        tokens = list(string)
+        tokens = ["<S>", *tokens, "<E>"]
+        for ii, token in enumerate(tokens):
+            labels[i, ii] = mapping[token]
+    return labels

@@ -2,6 +2,9 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+# Hide lines below until Lab 5
+import wandb
+# Hide lines above until Lab 5
 
 from .metrics import CharacterErrorRate
 from .base import BaseLitModel
@@ -46,11 +49,29 @@ class TransformerLitModel(BaseLitModel):
         self.log("val_loss", loss, prog_bar=True)
 
         pred = self.model.predict(x)
+        # Hide lines below until Lab 5
+        pred_str = ''.join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
+        try:
+            self.logger.experiment.log({
+                "val_pred_examples": [wandb.Image(x[0], caption=pred_str)]
+            })
+        except AttributeError:
+            pass
+        # Hide lines above until Lab 5
         self.val_cer(pred, y)
         self.log("val_cer", self.val_cer, on_step=False, on_epoch=True, prog_bar=True)
 
     def test_step(self, batch, batch_idx):  # pylint: disable=unused-argument
         x, y = batch
         pred = self.model.predict(x)
+        # Hide lines below until Lab 5
+        pred_str = ''.join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
+        try:
+            self.logger.experiment.log({
+                "test_pred_examples": [wandb.Image(x[0], caption=pred_str)]
+            })
+        except AttributeError:
+            pass
+        # Hide lines above until Lab 5
         self.test_cer(pred, y)
         self.log("test_cer", self.test_cer, on_step=False, on_epoch=True, prog_bar=True)

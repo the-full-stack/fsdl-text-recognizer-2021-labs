@@ -71,22 +71,27 @@ def main():
     model = model_class(data_config=data.config(), args=args)
 
     if args.loss not in ('ctc', 'transformer'):
-        lit_model = lit_models.BaseLitModel(model, args=args)
+        lit_model_class = lit_models.BaseLitModel
     # Hide lines below until Lab 3
     if args.loss == "ctc":
-        lit_model = lit_models.CTCLitModel(args=args, model=model)
+        lit_model_class = lit_models.CTCLitModel
     # Hide lines above until Lab 3
     # Hide lines below until Lab 4
     if args.loss == "transformer":
-        lit_model = lit_models.TransformerLitModel(args=args, model=model)
+        lit_model_class = lit_models.TransformerLitModel
     # Hide lines above until Lab 4
 
-    loggers = [pl.loggers.TensorBoardLogger("training/logs")]
+    if args.load_checkpoint is not None:
+        lit_model = lit_model_class.load_from_checkpoint(args.load_checkpoint, args=args, model=model)
+    else:
+        lit_model = lit_model_class(args=args, model=model)
+
+    logger = pl.loggers.TensorBoardLogger("training/logs")
 
     callbacks = [pl.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)]
 
     args.weights_summary = "full"  # Print full summary of the model
-    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=loggers, default_root_dir="training/logs")
+    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger, default_root_dir="training/logs")
 
     trainer.tune(lit_model, datamodule=data)  # If passing --auto_lr_find, this will set learning rate
 

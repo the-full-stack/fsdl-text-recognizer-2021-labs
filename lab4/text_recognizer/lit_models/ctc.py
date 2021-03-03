@@ -1,7 +1,8 @@
+import argparse
 import itertools
-import pytorch_lightning as pl
 import torch
 
+from .base import BaseLitModel
 from .metrics import CharacterErrorRate
 from .util import first_element
 
@@ -28,30 +29,24 @@ def compute_input_lengths(padded_sequences: torch.Tensor) -> torch.Tensor:
     return ((padded_sequences > 0) * lengths).argmax(1) + 1
 
 
-class CTCLitModel(pl.LightningModule):
+class CTCLitModel(BaseLitModel):
     """
     Generic PyTorch-Lightning class that must be initialized with a PyTorch module.
     """
 
-    def __init__(self, args, model):
-        super().__init__()
-        self.model = model
+    def __init__(self, model, args: argparse.Namespace = None):
+        super().__init__(model, args)
 
         inverse_mapping = {val: ind for ind, val in enumerate(self.model.data_config["mapping"])}
         start_index = inverse_mapping["<S>"]
         self.blank_index = inverse_mapping["<B>"]
+        end_index = inverse_mapping["<E>"]
         self.padding_index = inverse_mapping["<P>"]
-
-        self.optimizer_class = getattr(torch.optim, args.optimizer)
-        self.lr = args.lr
 
         self.loss_fn = torch.nn.CTCLoss(zero_infinity=True)
         # https://pytorch.org/docs/stable/generated/torch.nn.CTCLoss.html
 
-        self.val_acc = pl.metrics.Accuracy()
-        self.test_acc = pl.metrics.Accuracy()
-
-        ignore_tokens = [start_index, self.padding_index]
+        ignore_tokens = [start_index, end_index, self.padding_index]
         self.val_cer = CharacterErrorRate(ignore_tokens)
         self.test_cer = CharacterErrorRate(ignore_tokens)
 
