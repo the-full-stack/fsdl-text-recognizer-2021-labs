@@ -15,6 +15,12 @@ git pull
 cd lab5
 ```
 
+If you're on Colab, there are a couple of new packages to install, so make sure to run
+
+```
+!pip install boltons pytorch_lightning==1.1.4 wandb
+```
+
 ## IAMLines Dataset
 
 - Look at `notebooks/03-look-at-iam-lines.ipynb`.
@@ -38,64 +44,88 @@ Weights & Biases is an experiment tracking tool that ensures you never lose trac
 
 ### Set up W&B
 
-```
-wandb init
-```
+If you're on Colab, make sure to install the `wandb` package first with `!pip install wandb`.
 
-You should see something like:
+Then, run `wandb init`.
 
-```
-? Which team should we use? (Use arrow keys)
-> your_username
-Manual Entry
-```
+You've likely never signed into W&B before, so you'll see something like:
 
-Select your username.
-
-```
-Which project should we use?
-> Create New
+```text
+Let's setup this directory for W&B!
+wandb: You can find your API key in your browser here: https://wandb.ai/authorize
+wandb: Paste an API key from your profile and hit enter:
 ```
 
-Select `fsdl-text-recognizer-project`.
+Clicking on that URL will allow you to Sign In via Github (recommended) or Google, or Sign Up for an account.
 
-How to implement W&B in training code?
+The API key that you're being asked for will be available here: https://wandb.ai/settings
 
-Look at `training/run_experiment.py`.
+Then you'll be asked to enter the name of your project.
+You can go with the name of our repo: `fsdl-text-recognizer-2021-labs`
+
+### W&B Integration code
+
+Check out `training/run_experiment.py` for the few lines of code that it takes to integrate this logger with our experiment-running setup.
 
 ### Your first W&B experiment
 
 ```
-wandb login
-
-python training/run_experiment.py --max_epochs=100 --gpus='0,' --num_workers=20 --model_class=LineCNNTransformer --data_class=EMNISTLines --window_stride=8 --loss=transformer --wandb
+python training/run_experiment.py --wandb --max_epochs=10 --gpus='0,' --num_workers=4 --data_class=EMNISTLines2 --model_class=LineCNNTransformer --loss=transformer
 ```
 
-You should see a W&B experiment link in the console output.
+You should see a W&B experiment link in the console output, something like this:
+
+```text
+wandb: Tracking run with wandb version 0.10.14
+wandb: Syncing run rosy-shape-1
+wandb: ⭐️ View project at https://wandb.ai/USER/PROJECT
+wandb: 🚀 View run at https://wandb.ai/USER/PROJECT/runs/35hje5h9
+```
+
 Click the link to see the progress of your training run.
+
+Note that you can navigate to a table of all of your runs, and add notes and tags to stay organized.
+
+Adding a brief note describing what this experiment is about is invaluable to your future self :)
 
 ## Configuring sweeps
 
-Sweeps enable automated trials of hyper-parameters.
-W&B provides built in support for running [sweeps](https://docs.wandb.com/library/sweeps).
+Now that we can run experiments that are stored on Weights & Biases, we can more quickly find a good operating point, where your model is converging to something.
+
+Then, we'd like to search a bit around that point -- this is often called hyper-parameter optimization.
+
+W&B provides built in support for running [sweeps](https://docs.wandb.com/library/sweeps) of such experiments.
 
 We've setup an initial configuration file for sweeps in `training/emnist_lines_line_cnn_transformer_sweep.yaml`.
-It performs a basic random search across 3 parameters.
 
-There are lots of different [configuration options](https://docs.wandb.com/library/sweeps/configuration) for defining more complex sweeps.
-Anytime you modify this configuration you'll need to create a sweep in wandb by running:
+Start a sweep server on W&B by running:
 
 ```bash
-wandb sweep training/emnist_lines_line_cnn_transformer_sweep.yaml
+wandb sweep training/sweeps/emnist_lines2_line_cnn_transformer.yml
 ```
 
+Now you can run the sweep agent by executing the command that's printed out, for example:
+
 ```bash
-wandb agent $SWEEP_ID
+wandb agent USER/PROJECT/SWEEPID
+```
+
+A nice trick in case you have multiple GPUs and want to run multiple experiments in parallel is to precede the command with `CUDA_VISIBLE_DEVICES=<GPU_IND>`.
+For example, you can run the following two commands in two terminal sessions to have two experiments going at once, each using one of your GPUs:
+
+```
+# In one terminal session:
+CUDA_VISIBLE_DEVICES=0 wandb agent USER/PROJECT/SWEEPID
+
+# In another terminal session:
+CUDA_VISIBLE_DEVICES=1 wandb agent USER/PROJECT/SWEEPID
 ```
 
 ### Stopping a sweep
 
-If you choose the **random** sweep strategy, the agent will run forever. Our **grid** search strategy will stop once all options have been tried. You can stop a sweep from the W&B UI, or directly from the terminal. Hitting CTRL-C once will prevent the agent from running a new experiment but allow the current experiment to finish. Hitting CTRL-C again will kill the current running experiment.
+The **grid** search strategy will stop once all options have been tried. If you choose the **random** sweep strategy, the agent will run forever (although this may be changing in a future version).
+
+You can also stop a sweep from the W&B web app UI, or directly from the terminal. Hitting CTRL-C once will prevent the agent from running a new experiment but allow the current experiment to finish. Hitting CTRL-C again will kill the current running experiment.
 
 ## Things to try
 

@@ -17,7 +17,8 @@ class TransformerLitModel(BaseLitModel):
     def __init__(self, model, args = None):
         super().__init__(model, args)
 
-        inverse_mapping = {val: ind for ind, val in enumerate(self.model.data_config["mapping"])}
+        self.mapping = self.model.data_config["mapping"]
+        inverse_mapping = {val: ind for ind, val in enumerate(self.mapping)}
         start_index = inverse_mapping["<S>"]
         end_index = inverse_mapping["<E>"]
         padding_index = inverse_mapping["<P>"]
