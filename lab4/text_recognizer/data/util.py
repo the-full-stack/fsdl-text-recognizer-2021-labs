@@ -77,3 +77,15 @@ def convert_strings_to_labels(strings: Sequence[str], mapping: Dict[str, int], l
         for ii, token in enumerate(tokens):
             labels[i, ii] = mapping[token]
     return labels
+
+
+def split_dataset(base_dataset: BaseDataset, fraction: float, seed: int) -> Tuple[BaseDataset, BaseDataset]:
+    """
+    Split input base_dataset into 2 base datasets, the first of size fraction * size of the base_dataset and the
+    other of size (1 - fraction) * size of the base_dataset.
+    """
+    split_a_size = int(fraction * len(base_dataset))
+    split_b_size = len(base_dataset) - split_a_size
+    return torch.utils.data.random_split(
+        base_dataset, [split_a_size, split_b_size], generator=torch.Generator().manual_seed(seed)
+    )

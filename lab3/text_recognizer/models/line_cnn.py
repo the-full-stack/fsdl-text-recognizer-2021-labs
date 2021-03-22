@@ -5,10 +5,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-CONV_DIM = 64
-FC_DIM = 128
-WINDOW_WIDTH = 28
-WINDOW_STRIDE = 28
+
+
+CONV_DIM = 32
+FC_DIM = 512
+WINDOW_WIDTH = 16
+WINDOW_STRIDE = 8
 
 
 class ConvBlock(nn.Module):
@@ -53,7 +55,6 @@ class LineCNN(nn.Module):
         self.args = vars(args) if args is not None else {}
         self.num_classes = len(data_config["mapping"])
         self.output_length = data_config["output_dims"][0]
-        self.limit_output_length = self.args.get("limit_output_length", False)
 
         _C, H, _W = data_config["input_dims"]
         conv_dim = self.args.get("conv_dim", CONV_DIM)
@@ -62,14 +63,19 @@ class LineCNN(nn.Module):
         self.WS = self.args.get("window_stride", WINDOW_STRIDE)
 
         # Input is (1, H, W)
-        self.conv1 = ConvBlock(1, conv_dim)
-        self.conv2 = ConvBlock(conv_dim, conv_dim)
-        self.conv3 = ConvBlock(conv_dim, conv_dim, stride=2)
-        # Conv math! https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html
-        # OW = torch.floor((W // 2 - WW // 2) + 1)
-        self.conv4 = ConvBlock(conv_dim, fc_dim, kernel_size=(H // 2, self.WW // 2), stride=(H // 2, self.WS // 2))
-        self.dropout = nn.Dropout(0.25)
+        self.convs = nn.Sequential(
+            ConvBlock(1, conv_dim),
+            ConvBlock(conv_dim, conv_dim),
+            ConvBlock(conv_dim, conv_dim, stride=2),
+            ConvBlock(conv_dim, conv_dim),
+            ConvBlock(conv_dim, conv_dim * 2, stride=2),
+            ConvBlock(conv_dim * 2, conv_dim * 2),
+            ConvBlock(conv_dim * 2, conv_dim * 4, stride=2),
+            ConvBlock(conv_dim * 4, conv_dim * 4),
+            ConvBlock(conv_dim * 4, fc_dim, kernel_size=(H // 8, self.WW // 8), stride=(H // 8, self.WS // 8))
+        )
         self.fc1 = nn.Linear(fc_dim, fc_dim)
+        self.dropout = nn.Dropout(0.2)
         self.fc2 = nn.Linear(fc_dim, self.num_classes)
 
         self._init_weights()
@@ -109,19 +115,12 @@ class LineCNN(nn.Module):
             C is self.num_classes
         """
         _B, _C, _H, W = x.shape
-        x = self.conv1(x)  # -> (B, CONV_DIM, H, W)
-        x = self.conv2(x)  # -> (B, CONV_DIM, H, W)
-        x = self.conv3(x)  # -> (B, CONV_DIM, H//2, W//2)
-        OW = math.floor((W // 2 + 2 - self.WW // 2) / (self.WS // 2) + 1)
-        x = self.conv4(x)  # -> (B, FC_DIM, 1, OW)
-        assert x.shape[-1] == OW
-        x = x.squeeze().permute(0, 2, 1)  # -> (B, OW, FC_DIM)
-        x = F.relu(self.fc1(x))  # -> (B, OW, FC_DIM)
+        x = self.convs(x)  # (B, FC_DIM, 1, Sx)
+        x = x.squeeze(2).permute(0, 2, 1)  # (B, S, FC_DIM)
+        x = F.relu(self.fc1(x))  # -> (B, S, FC_DIM)
         x = self.dropout(x)
-        x = self.fc2(x)  # -> (B, OW, self.C)
-        x = x.permute(0, 2, 1)  # -> (B, self.C, OW)
-        if self.limit_output_length:
-            x = x[:, :, : self.output_length]
+        x = self.fc2(x)  # (B, S, C)
+        x = x.permute(0, 2, 1)  # -> (B, C, S)
         return x
 
     @staticmethod

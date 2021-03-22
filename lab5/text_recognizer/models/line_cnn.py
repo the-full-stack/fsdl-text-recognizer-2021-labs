@@ -38,31 +38,6 @@ class ConvBlock(nn.Module):
         c = self.conv(x)
         r = self.relu(c)
         return r
-class ConvBlock(nn.Module):
-    """
-    Simple 3x3 conv with padding size 1 (to leave the input size unchanged), followed by a ReLU.
-    """
-
-    def __init__(self, input_channels: int, output_channels: int, kernel_size: int = 3, stride: int = 1) -> None:
-        super().__init__()
-        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=kernel_size, stride=stride, padding=1)
-        self.relu = nn.ReLU()
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Parameters
-        ----------
-        x
-            of dimensions (B, C, H, W)
-
-        Returns
-        -------
-        torch.Tensor
-            of dimensions (B, C, H, W)
-        """
-        c = self.conv(x)
-        r = self.relu(c)
-        return r
 
 
 class LineCNN(nn.Module):

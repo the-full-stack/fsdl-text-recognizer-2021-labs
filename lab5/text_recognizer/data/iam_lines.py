@@ -63,8 +63,8 @@ class IAMLines(BaseDataModule):
         aspect_ratios = shapes[:, 0] / shapes[:, 1]
 
         print("Saving images, labels, and statistics...")
-        save_images_and_labels(crops_trainval, labels_trainval, 'trainval')
-        save_images_and_labels(crops_test, labels_test, 'test')
+        save_images_and_labels(crops_trainval, labels_trainval, 'trainval', PROCESSED_DATA_DIRNAME)
+        save_images_and_labels(crops_test, labels_test, 'test', PROCESSED_DATA_DIRNAME)
         with open(PROCESSED_DATA_DIRNAME / '_max_aspect_ratio.txt', 'w') as file:
             file.write(str(aspect_ratios.max()))
 
@@ -73,22 +73,11 @@ class IAMLines(BaseDataModule):
             max_aspect_ratio = float(file.read())
             image_width = int(IMAGE_HEIGHT * max_aspect_ratio)
             assert image_width <= IMAGE_WIDTH
-        with open(PROCESSED_DATA_DIRNAME / 'trainval' / '_labels.json') as file:
-            labels_trainval = json.load(file)
-        with open(PROCESSED_DATA_DIRNAME / 'test' / '_labels.json') as file:
-            labels_test = json.load(file)
-
-        max_label_length = max([len(label) for label in labels_trainval + labels_test]) + 2  # Add 2 because of start and end tokens.
-        output_dims = (max_label_length, 1)
-        if output_dims != self.output_dims:
-            raise RuntimeError(dims, output_dims)
 
         if stage == "fit" or stage is None:
-            filenames_trainval = sorted(
-                (PROCESSED_DATA_DIRNAME / 'trainval').glob('*.png'),
-                key=lambda filename: int(Path(filename).stem)
-            )
-            x_trainval = [Image.open(filename) for filename in filenames_trainval]
+            x_trainval, labels_trainval = load_line_crops_and_labels('trainval', PROCESSED_DATA_DIRNAME)
+            assert self.output_dims[0] >= max([len(l) for l in labels_trainval]) + 2  # Add 2 because of start and end tokens.
+
             y_trainval = convert_strings_to_labels(labels_trainval, self.inverse_mapping, length=self.output_dims[0])
             data_trainval = BaseDataset(x_trainval, y_trainval, transform=get_transform(IMAGE_WIDTH, self.augment))
 
@@ -100,11 +89,9 @@ class IAMLines(BaseDataModule):
 
         # Note that test data does not go through augmentation transforms
         if stage == "test" or stage is None:
-            filenames_test = sorted(
-                (PROCESSED_DATA_DIRNAME / 'test').glob('*.png'),
-                key=lambda filename: int(Path(filename).stem)
-            )
-            x_test = [Image.open(filename) for filename in filenames_test]
+            x_test, labels_test = load_line_crops_and_labels('test', PROCESSED_DATA_DIRNAME)
+            assert self.output_dims[0] >= max([len(l) for l in labels_test]) + 2  # Add 2 because of start and end tokens.
+
             y_test = convert_strings_to_labels(labels_test, self.inverse_mapping, length=self.output_dims[0])
             self.data_test = BaseDataset(x_test, y_test, transform=get_transform(IMAGE_WIDTH))
 
@@ -146,16 +133,31 @@ def line_crops_and_labels(iam: IAM, split: str):
             image.crop([region[_] for _ in ['x1', 'y1', 'x2', 'y2']])
             for region in iam.line_regions_by_id[filename.stem]
         ]
+    assert len(crops) == len(labels)
     return crops, labels
 
 
-def save_images_and_labels(crops: Sequence[Image.Image], labels: Sequence[str], split: str):
-    (PROCESSED_DATA_DIRNAME / split).mkdir(parents=True, exist_ok=True)
+def save_images_and_labels(crops: Sequence[Image.Image], labels: Sequence[str], split: str, data_dirname: Path):
+    (data_dirname / split).mkdir(parents=True, exist_ok=True)
 
-    with open(PROCESSED_DATA_DIRNAME / split / '_labels.json', 'w') as f:
+    with open(data_dirname / split / '_labels.json', 'w') as f:
         json.dump(labels, f)
     for ind, crop in enumerate(crops):
-        crop.save(PROCESSED_DATA_DIRNAME / split / f'{ind}.png')
+        crop.save(data_dirname / split / f'{ind}.png')
+
+
+def load_line_crops_and_labels(split: str, data_dirname: Path):
+    """Load line crops and labels for given split from processed directory."""
+    with open(data_dirname / split / '_labels.json') as file:
+        labels = json.load(file)
+
+    crop_filenames = sorted(
+        (data_dirname / split).glob('*.png'),
+        key=lambda filename: int(Path(filename).stem)
+    )
+    crops = [Image.open(filename).convert("L") for filename in crop_filenames]
+    assert len(crops) == len(labels)
+    return crops, labels
 
 
 def get_transform(image_width, augment=False):

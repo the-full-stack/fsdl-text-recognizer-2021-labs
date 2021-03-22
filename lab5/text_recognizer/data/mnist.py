@@ -9,6 +9,12 @@ from text_recognizer.data.base_data_module import BaseDataModule, load_and_print
 
 DOWNLOADED_DATA_DIRNAME = BaseDataModule.data_dirname() / "downloaded"
 
+# NOTE: temp fix until https://github.com/pytorch/vision/issues/1938 is resolved
+from six.moves import urllib
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+urllib.request.install_opener(opener)
+
 
 class MNIST(BaseDataModule):
     """
