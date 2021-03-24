@@ -118,7 +118,3 @@ Some other things to try:
 - Remove `MaxPool2D`, perhaps using a strided convolution instead.
 - Add some command-line arguments to make trying things a quicker process.
 - A good argument to add would be for the number of `ConvBlock`s to run the input through.
-
-Explain what you did, paste the contents of `cnn.py`, and paste your training output into the last question of Gradescope Assignment 2.
-
-As long as you tried a couple of things, you will receive full credit.

@@ -132,4 +132,3 @@ You can also stop a sweep from the W&B web app UI, or directly from the terminal
 - Try to find a settings of hyperparameters for `LineCNNTransformer` (don't forget -- it includes `LineCNN` hyperparams) that trains fastest while reaching low CER
 - Perhaps do that by running a sweep!
 - Try some experiments with `LineCNNLSTM` if you want
-- You can also experiment with

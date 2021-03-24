@@ -126,4 +126,3 @@ And watch the model fail to achieve high accuracy due to too few parameters :)
 
 - Try `training/run_experiment.py` with different MLP hyper-parameters (e.g. `--fc1=128 --fc2=64`).
 - Try editing the MLP architecture in `text_recognizers/models/mlp.py`
-- Explain what you did and paste your training output into Gradescope Assignment 1.
