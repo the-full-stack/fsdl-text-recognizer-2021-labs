@@ -68,6 +68,7 @@ class LineCNN(nn.Module):
         fc_dim = self.args.get("fc_dim", FC_DIM)
         self.WW = self.args.get("window_width", WINDOW_WIDTH)
         self.WS = self.args.get("window_stride", WINDOW_STRIDE)
+        self.limit_output_length = self.args.get("limit_output_length", False)
 
         # Input is (1, H, W)
         self.convs = nn.Sequential(
