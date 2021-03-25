@@ -15,8 +15,8 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-from text_recognizer.data.util import BaseDataset, convert_strings_to_labels
-from text_recognizer.data.base_data_module import BaseDataModule, load_and_print_info, split_dataset
+from text_recognizer.data.util import BaseDataset, convert_strings_to_labels, split_dataset
+from text_recognizer.data.base_data_module import BaseDataModule, load_and_print_info
 from text_recognizer.data.emnist import EMNIST
 from text_recognizer.data.iam import IAM
 from text_recognizer import util
