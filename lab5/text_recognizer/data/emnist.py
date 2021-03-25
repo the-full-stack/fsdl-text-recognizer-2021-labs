@@ -14,8 +14,8 @@ import numpy as np
 import toml
 import torch
 
-from text_recognizer.data.base_data_module import _download_raw_dataset, BaseDataModule, load_and_print_info, split_dataset
-from text_recognizer.data.util import BaseDataset
+from text_recognizer.data.base_data_module import _download_raw_dataset, BaseDataModule, load_and_print_info
+from text_recognizer.data.util import BaseDataset, split_dataset
 
 NUM_SPECIAL_TOKENS = 4
 SAMPLE_TO_BALANCE = True  # If true, take at most the mean number of instances per class.
