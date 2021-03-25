@@ -176,9 +176,6 @@ Better yet, edit `LineCNN` to use residual connections and other CNN tricks, or 
 
 Feel free to edit `LineCNNLSTM` as well, get crazy with LSTM stuff!
 
-Describe what you did, paste code if appropriate, and what you learned.
-Doesn't have to be intense!
-
 ### CTCLitModel
 
 In your own words, explain how the `CharacterErrorRate` metric and the `greedy_decode` method work.

@@ -6,14 +6,23 @@ from urllib.request import urlopen, urlretrieve
 import hashlib
 import os
 
+from PIL import Image
+from tqdm import tqdm
 import numpy as np
 import cv2
-from tqdm import tqdm
 
 
 def to_categorical(y, num_classes):
     """1-hot encode a tensor."""
     return np.eye(num_classes, dtype="uint8")[y]
+
+
+def read_image_pil(image_uri: Union[Path, str], grayscale=False) -> Image:
+    with Image.open(image_uri) as f:
+        image = f.load()
+        if grayscale:
+            image = image.convert("L")
+        return image
 
 
 def read_image(image_uri: Union[Path, str], grayscale=False) -> np.array:

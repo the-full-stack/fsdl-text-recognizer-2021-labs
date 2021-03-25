@@ -4,4 +4,3 @@ from .mnist import MNIST
 
 
 
-

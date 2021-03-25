@@ -6,9 +6,9 @@ import torch.nn.functional as F
 
 from .line_cnn import LineCNN
 
-LSTM_DIM = 128
-LSTM_LAYERS = 2
-LSTM_DROPOUT = 0.25
+LSTM_DIM = 512
+LSTM_LAYERS = 1
+LSTM_DROPOUT = 0.2
 
 
 class LineCNNLSTM(nn.Module):

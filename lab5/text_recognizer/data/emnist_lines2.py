@@ -222,12 +222,8 @@ def create_dataset_of_images(N, samples_by_char, sentence_generator, min_overlap
 def get_transform(augment=False):
     """Augment with brightness, slight rotation, slant, translation, scale, and Gaussian noise."""
     if not augment:
-        return transforms.Compose([
-            transforms.ToTensor(),
-            # transforms.Lambda(lambda x: x - 0.5),
-        ])
+        return transforms.Compose([transforms.ToTensor()])
     return transforms.Compose([
-        transforms.ToTensor(),
         transforms.ColorJitter(brightness=(0.5, 1)),
         transforms.RandomAffine(
             degrees=3,
@@ -237,7 +233,7 @@ def get_transform(augment=False):
             resample=Image.BILINEAR,
             fillcolor=0
         ),
-        # transforms.Lambda(lambda x: x - 0.5),
+        transforms.ToTensor(),
     ])
 
 

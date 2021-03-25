@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Union, Tuple
 import argparse
 import math
 import torch
@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+# Common type hints
+Param2D = Union[int, Tuple[int, int]]
 
 CONV_DIM = 32
 FC_DIM = 512
@@ -18,34 +20,14 @@ class ConvBlock(nn.Module):
     Simple 3x3 conv with padding size 1 (to leave the input size unchanged), followed by a ReLU.
     """
 
-    def __init__(self, input_channels: int, output_channels: int, kernel_size: int = 3, stride: int = 1) -> None:
+    def __init__(self,
+                 input_channels: int,
+                 output_channels: int,
+                 kernel_size: Param2D = 3,
+                 stride: Param2D = 1,
+                 padding: Param2D = 1) -> None:
         super().__init__()
-        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=kernel_size, stride=stride, padding=1)
-        self.relu = nn.ReLU()
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Parameters
-        ----------
-        x
-            of dimensions (B, C, H, W)
-
-        Returns
-        -------
-        torch.Tensor
-            of dimensions (B, C, H, W)
-        """
-        c = self.conv(x)
-        r = self.relu(c)
-        return r
-class ConvBlock(nn.Module):
-    """
-    Simple 3x3 conv with padding size 1 (to leave the input size unchanged), followed by a ReLU.
-    """
-
-    def __init__(self, input_channels: int, output_channels: int, kernel_size: int = 3, stride: int = 1) -> None:
-        super().__init__()
-        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=kernel_size, stride=stride, padding=1)
+        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=kernel_size, stride=stride, padding=padding)
         self.relu = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -97,7 +79,7 @@ class LineCNN(nn.Module):
             ConvBlock(conv_dim * 2, conv_dim * 2),
             ConvBlock(conv_dim * 2, conv_dim * 4, stride=2),
             ConvBlock(conv_dim * 4, conv_dim * 4),
-            ConvBlock(conv_dim * 4, fc_dim, kernel_size=(H // 8, self.WW // 8), stride=(H // 8, self.WS // 8))
+            ConvBlock(conv_dim * 4, fc_dim, kernel_size=(H // 8, self.WW // 8), stride=(H // 8, self.WS // 8), padding=0)
         )
         self.fc1 = nn.Linear(fc_dim, fc_dim)
         self.dropout = nn.Dropout(0.2)
@@ -146,6 +128,8 @@ class LineCNN(nn.Module):
         x = self.dropout(x)
         x = self.fc2(x)  # (B, S, C)
         x = x.permute(0, 2, 1)  # -> (B, C, S)
+        if self.limit_output_length:
+            x = x[:, :, :self.output_length]
         return x
 
     @staticmethod
