@@ -16,7 +16,7 @@ import torch
 from torchvision import transforms
 
 from text_recognizer.data.util import BaseDataset, convert_strings_to_labels
-from text_recognizer.data.base_data_module import BaseDataModule, load_and_print_info
+from text_recognizer.data.base_data_module import BaseDataModule, load_and_print_info, split_dataset
 from text_recognizer.data.emnist import EMNIST
 from text_recognizer.data.iam import IAM
 from text_recognizer import util
@@ -82,11 +82,7 @@ class IAMLines(BaseDataModule):
             y_trainval = convert_strings_to_labels(labels_trainval, self.inverse_mapping, length=self.output_dims[0])
             data_trainval = BaseDataset(x_trainval, y_trainval, transform=get_transform(IMAGE_WIDTH, self.augment))
 
-            train_size = int(TRAIN_FRAC * len(data_trainval))
-            val_size = len(data_trainval) - train_size
-            self.data_train, self.data_val = torch.utils.data.random_split(
-                data_trainval, [train_size, val_size], generator=torch.Generator().manual_seed(42)
-            )
+            self.data_train, self.data_val = split_dataset(base_dataset=data_trainval, fraction=TRAIN_FRAC, seed=42)
 
         # Note that test data does not go through augmentation transforms
         if stage == "test" or stage is None:

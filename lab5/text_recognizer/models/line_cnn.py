@@ -128,6 +128,8 @@ class LineCNN(nn.Module):
         x = self.dropout(x)
         x = self.fc2(x)  # (B, S, C)
         x = x.permute(0, 2, 1)  # -> (B, C, S)
+        if self.limit_output_length:
+            x = x[:, :, :self.output_length]
         return x
 
     @staticmethod
