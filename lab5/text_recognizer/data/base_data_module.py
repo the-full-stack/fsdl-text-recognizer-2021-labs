@@ -43,7 +43,7 @@ NUM_WORKERS = 0
 class BaseDataModule(pl.LightningDataModule):
     """
     Base DataModule.
-    Learn more at https://pytorch-lightning.readthedocs.io/en/stable/datamodules.html
+    Learn more at https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
     """
 
     def __init__(self, args: argparse.Namespace = None) -> None:
