@@ -87,9 +87,9 @@ idna==2.10
     #   -c requirements/prod.txt
     #   anyio
     #   requests
-immutables==0.14
+immutables==0.15
     # via contextvars
-importlib-metadata==3.4.0
+importlib-metadata==3.10.0
     # via
     #   -c requirements/prod.txt
     #   jsonschema
@@ -220,7 +220,7 @@ parso==0.8.1
 pathspec==0.8.1
     # via black
 pathtools==0.1.2
-    # via watchdog
+    # via wandb
 pbr==5.5.1
     # via stevedore
 pexpect==4.8.0
@@ -396,17 +396,15 @@ urllib3==1.26.2
     #   -c requirements/prod.txt
     #   requests
     #   sentry-sdk
-wandb==0.10.14
+wandb==0.10.23
     # via -r requirements/dev.in
-watchdog==0.10.4
-    # via wandb
 wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1
     # via bleach
 wrapt==1.12.1
     # via astroid
-zipp==3.4.0
+zipp==3.4.1
     # via
     #   -c requirements/prod.txt
     #   importlib-metadata

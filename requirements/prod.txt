@@ -53,7 +53,7 @@ idna==2.10
     #   idna-ssl
     #   requests
     #   yarl
-importlib-metadata==3.4.0
+importlib-metadata==3.10.0
     # via markdown
 itsdangerous==1.1.0
     # via flask
@@ -90,7 +90,7 @@ pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   rsa
-pytorch-lightning==1.1.4
+pytorch-lightning==1.2.5
     # via -r requirements/prod.in
 pyyaml==5.3.1
     # via pytorch-lightning
@@ -121,7 +121,10 @@ torch==1.7.1
     # via
     #   -r requirements/prod.in
     #   pytorch-lightning
+    #   torchmetrics
     #   torchvision
+torchmetrics==0.2.0
+    # via pytorch-lightning
 torchvision==0.8.2
     # via -r requirements/prod.in
 tqdm==4.56.0
@@ -144,7 +147,7 @@ wheel==0.36.2
     # via tensorboard
 yarl==1.6.3
     # via aiohttp
-zipp==3.4.0
+zipp==3.4.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

@@ -5,6 +5,7 @@ import importlib
 import numpy as np
 import torch
 import pytorch_lightning as pl
+import wandb
 
 from text_recognizer import lit_models
 
@@ -89,15 +90,28 @@ def main():
 
     logger = pl.loggers.TensorBoardLogger("training/logs")
 
-    callbacks = [pl.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)]
+    early_stopping_callback = pl.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)
+    model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
+        filename='{epoch:03d}-{val_loss:.3f}-{val_cer:.3f}',
+        monitor="val_loss",
+        mode="min"
+    )
+    callbacks = [early_stopping_callback, model_checkpoint_callback]
 
     args.weights_summary = "full"  # Print full summary of the model
-    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger, default_root_dir="training/logs")
+    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger, weights_save_path="training/logs")
 
     trainer.tune(lit_model, datamodule=data)  # If passing --auto_lr_find, this will set learning rate
 
     trainer.fit(lit_model, datamodule=data)
     trainer.test(lit_model, datamodule=data)
+
+    best_model_path = model_checkpoint_callback.best_model_path
+    if best_model_path:
+        print("Best model saved at:", best_model_path)
+        if args.wandb:
+            wandb.save(best_model_path)
+            print("Best model also uploaded to W&B")
 
 
 if __name__ == "__main__":

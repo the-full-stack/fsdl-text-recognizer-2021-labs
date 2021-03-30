@@ -52,6 +52,8 @@ class BaseDataModule(pl.LightningDataModule):
         self.batch_size = self.args.get("batch_size", BATCH_SIZE)
         self.num_workers = self.args.get("num_workers", NUM_WORKERS)
 
+        self.on_gpu = isinstance(self.args.get('gpus', None), (str, int))
+
         # Make sure to set the variables below in subclasses
         self.dims = None
         self.output_dims = None
@@ -91,10 +93,10 @@ class BaseDataModule(pl.LightningDataModule):
         self.data_test = None
 
     def train_dataloader(self):
-        return DataLoader(self.data_train, shuffle=True, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.data_train, shuffle=True, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=self.on_gpu)
 
     def val_dataloader(self):
-        return DataLoader(self.data_val, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.data_val, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=self.on_gpu)
 
     def test_dataloader(self):
-        return DataLoader(self.data_test, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.data_test, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=self.on_gpu)

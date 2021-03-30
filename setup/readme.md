@@ -95,7 +95,14 @@ We add a `Makefile` for making setup dead-simple.
 
 **Note**: this step is not necessary if you are using the GCP AI Platform Notebooks instance.
 
-run `make conda-update` to create an environment called `fsdl-text-recognizer-2021`, as defined in `environment.yml`.
+Conda is an open-source package management system and environment management system that runs on Windows, macOS, and Linux.
+
+To install `conda`, follow instructions at https://conda.io/projects/conda/en/latest/user-guide/install/linux.html
+
+Note that you will likely need to close and re-open your terminal.
+Afterward, you should have ability to run the `conda` command in your terminal.
+
+Run `make conda-update` to create an environment called `fsdl-text-recognizer-2021`, as defined in `environment.yml`.
 This environment will provide us with the right Python version as well as the CUDA and CUDNN libraries.
 
 If you edit `environment.yml`, just run `make conda-update` again to get the latest changes.

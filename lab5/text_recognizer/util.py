@@ -18,10 +18,11 @@ def to_categorical(y, num_classes):
 
 
 def read_image_pil(image_uri: Union[Path, str], grayscale=False) -> Image:
-    with Image.open(image_uri) as f:
-        image = f.load()
+    with Image.open(image_uri) as image:
         if grayscale:
-            image = image.convert("L")
+            image = image.convert(mode="L")
+        else:
+            image = image.convert(mode=image.mode)
         return image
 
 
