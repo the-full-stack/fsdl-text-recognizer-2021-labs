@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Sequence
 import json
 import torch
-import pytorch_lightning as pl
 
 from text_recognizer.data import IAMParagraphs
 from text_recognizer.data.iam_paragraphs import resize_image, IMAGE_SCALE_FACTOR, get_transform
@@ -18,11 +17,10 @@ CONFIG_AND_WEIGHTS_DIRNAME = Path(__file__).resolve().parent / "artifacts" / "pa
 class ParagraphTextRecognizer:
     """Class to recognize paragraph text in an image."""
     def __init__(self):
-        pl.utilities.seed.seed_everything(seed=42)  # helps in getting the same result for the same input image
-
         data = IAMParagraphs()
         self.mapping = data.mapping
-        self.padding_index = data.inverse_mapping["<P>"]
+        inv_mapping = data.inverse_mapping
+        self.ignore_tokens = [inv_mapping["<S>"], inv_mapping["<B>"], inv_mapping["<E>"], inv_mapping["<P>"]]
         self.transform = get_transform(image_shape=data.dims[1:], augment=False)
 
         with open(CONFIG_AND_WEIGHTS_DIRNAME / "config.json", 'r') as file:
@@ -35,6 +33,7 @@ class ParagraphTextRecognizer:
             args=args,
             model=model
         )
+        self.lit_model.eval()
 
     def predict(self, image_filename: Path) -> str:
         """Predict/infer text in input image filename."""
@@ -43,10 +42,10 @@ class ParagraphTextRecognizer:
         img_tensor = self.transform(pil_img)
 
         y_pred = self.lit_model(img_tensor.unsqueeze(axis=0))[0]
-        pred_str = convert_y_label_to_string(y=y_pred, mapping=self.mapping, padding_index=self.padding_index)
+        pred_str = convert_y_label_to_string(y=y_pred, mapping=self.mapping, ignore_tokens=self.ignore_tokens)
 
         return pred_str
 
 
-def convert_y_label_to_string(y: torch.tensor, mapping: Sequence[str], padding_index: int):
-    return ''.join([mapping[i] for i in y if i != padding_index])
+def convert_y_label_to_string(y: torch.tensor, mapping: Sequence[str], ignore_tokens: Sequence[int]):
+    return ''.join([mapping[i] for i in y if i not in ignore_tokens])
