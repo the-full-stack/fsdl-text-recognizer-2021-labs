@@ -106,12 +106,6 @@ def main():
     trainer.fit(lit_model, datamodule=data)
     trainer.test(lit_model, datamodule=data)
 
-    best_model_path = model_checkpoint_callback.best_model_path
-    if best_model_path:
-        print("Best model saved at:", best_model_path)
-        if args.wandb:
-            wandb.save(best_model_path)
-            print("Best model also uploaded to W&B")
 
 
 if __name__ == "__main__":

@@ -65,7 +65,17 @@ In this lab, we will do several things:
         └── emnist_lines2_line_cnn_transformer.yml
 ```
 
+## ResnetTransformer
+
+We add a new type of model: a Transformer powered not by our own home-brewed `LineCNN`, but by an industrial-grade ResNet :)
+
+Check it out in `text_recognizer/models/resnet_transformer.py`, and pay particular attention to the new `PositionalEncodingImage` class that we use to encode the ResNet output.
+
 ## IAMLines
+
+We can use this new model on the `IAMLines` dataset and obtain some pretty decent performance.
+
+If you forgot what `IAMLines` looks like, check out `notebooks/03-look-at-iam-lines.ipynb`.
 
 Training command:
 
@@ -82,13 +92,29 @@ Best run:
    - val_loss: 0.2252
    - num_epochs: 589
 
+We can do even better than this with some tweaking!
+5% CER is possible.
+
 ## IAMParagraphs
+
+Because of our new `PositionalEncodingImage` method, which encodes input to the transformer on both x and y axes, we can apply the exact same `ResnetTransformer` model to images of paragraphs and not just single lines.
+
+First, let's look at what these images look like: `notebooks/04-look-at-iam-paragraphs.ipynb`.
+
+Because there isn't that much data that IAM gives us, we compose our own images of synthetic paragraphs out of IAM lines, using the `IAMSyntheticParagraphs` dataset.
+You can see those in the same notebook.
+
+At training time, we want to use both the synthetic paragraphs and real paragraphs, and test only on real paragraphs, using the `IAMOriginalAndSyntheticParagraphs` dataset.
+
+Take a look at how that's done in `text_recognizer/datasets/iam_original_and_synthetic_paragraphs.py`.
 
 Training command:
 
 ```sh
 python training/run_experiment.py --wandb --gpus=-1 --data_class=IAMOriginalAndSyntheticParagraphs --model_class=ResnetTransformer --loss=transformer --batch_size=16 --check_val_every_n_epoch=10 --terminate_on_nan=1 --num_workers=24 --accelerator=ddp --lr=0.0001 --accumulate_grad_batches=4
 ```
+
+Note that we used 8 2080Ti's to train this model -- it might take quite a while without that!
 
 Best run:
 
@@ -101,10 +127,30 @@ Best run:
 
 ## Saving the final model
 
-TODO
+We add a way to find and save the best model trained on a given dataset to artifacts directory in `training/save_best_model.py`.
+
+For example, we can run
+
+```sh
+python training/save_best_model.py --entity=fsdl-user --trained_data_class=IAMOriginalAndSyntheticParagraphs
+```
+
+To find the entity and project names, open one of your wandb runs in the web browser and look for the field "Run path" in "Overview" page.
+"Run path" is of the format "<entity>/<project>/<run_id>".
+
+By default, the metric used to find the best model is `val_loss`.
+You can specify a different one with `--metric=val_cer`, for example.
+
+This way of finding the best model relies on storing the model weights to W&B at the end of each experiment, which is now done in `training/run_experiment.py`.
 
 ## ParagraphTextRecognizer
 
 Now that we have our final model parameters and weights, we can load it in a class that we can use for inference in production.
 
 The file for this is `text_recognizer/paragraph_text_recognizer.py`
+
+## Homework
+
+Check out the new files, and perhaps try training yourself!
+
+Next time, we will add tests for our new recognizer class, as well as some evaluation tests, and a test of the training system.
