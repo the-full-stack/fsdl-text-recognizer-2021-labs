@@ -7,7 +7,7 @@ from typing import Optional
 import nltk
 import numpy as np
 
-from text_recognizer.data import BaseDataModule
+from text_recognizer.data.base_data_module import BaseDataModule
 
 NLTK_DATA_DIRNAME = BaseDataModule.data_dirname() / "downloaded" / "nltk"
 
@@ -29,12 +29,12 @@ class SentenceGenerator:
         if max_length is None:
             raise ValueError("Must provide max_length to this method or when making this object.")
 
-        for ind in range(10):  # Try several times to generate before actually erroring
+        for _ in range(10):  # Try several times to generate before actually erroring
             try:
-                ind = np.random.randint(0, len(self.word_start_inds) - 1)
-                start_ind = self.word_start_inds[ind]
+                first_ind = np.random.randint(0, len(self.word_start_inds) - 1)
+                start_ind = self.word_start_inds[first_ind]
                 end_ind_candidates = []
-                for ind in range(ind + 1, len(self.word_start_inds)):
+                for ind in range(first_ind + 1, len(self.word_start_inds)):
                     if self.word_start_inds[ind] - start_ind > max_length:
                         break
                     end_ind_candidates.append(self.word_start_inds[ind])

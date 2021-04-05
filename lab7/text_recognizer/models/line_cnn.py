@@ -20,12 +20,14 @@ class ConvBlock(nn.Module):
     Simple 3x3 conv with padding size 1 (to leave the input size unchanged), followed by a ReLU.
     """
 
-    def __init__(self,
-                 input_channels: int,
-                 output_channels: int,
-                 kernel_size: Param2D = 3,
-                 stride: Param2D = 1,
-                 padding: Param2D = 1) -> None:
+    def __init__(
+        self,
+        input_channels: int,
+        output_channels: int,
+        kernel_size: Param2D = 3,
+        stride: Param2D = 1,
+        padding: Param2D = 1,
+    ) -> None:
         super().__init__()
         self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=kernel_size, stride=stride, padding=padding)
         self.relu = nn.ReLU()
@@ -49,7 +51,7 @@ class ConvBlock(nn.Module):
 
 class LineCNN(nn.Module):
     """
-    Model that uses a simple CNN to process an image of a line of characters with a window, outputting a sequence of logits.
+    Model that uses a simple CNN to process an image of a line of characters with a window, outputs a sequence of logits
     """
 
     def __init__(
@@ -80,7 +82,9 @@ class LineCNN(nn.Module):
             ConvBlock(conv_dim * 2, conv_dim * 2),
             ConvBlock(conv_dim * 2, conv_dim * 4, stride=2),
             ConvBlock(conv_dim * 4, conv_dim * 4),
-            ConvBlock(conv_dim * 4, fc_dim, kernel_size=(H // 8, self.WW // 8), stride=(H // 8, self.WS // 8), padding=0)
+            ConvBlock(
+                conv_dim * 4, fc_dim, kernel_size=(H // 8, self.WW // 8), stride=(H // 8, self.WS // 8), padding=0
+            ),
         )
         self.fc1 = nn.Linear(fc_dim, fc_dim)
         self.dropout = nn.Dropout(0.2)
@@ -90,8 +94,7 @@ class LineCNN(nn.Module):
 
     def _init_weights(self):
         """
-        A better weight initialization scheme than PyTorch default.
-
+        Initialize weights in a better way than default.
         See https://github.com/pytorch/pytorch/issues/18182
         """
         for m in self.modules():
@@ -104,7 +107,9 @@ class LineCNN(nn.Module):
             }:
                 nn.init.kaiming_normal_(m.weight.data, a=0, mode="fan_out", nonlinearity="relu")
                 if m.bias is not None:
-                    _fan_in, fan_out = nn.init._calculate_fan_in_and_fan_out(m.weight.data)
+                    _fan_in, fan_out = nn.init._calculate_fan_in_and_fan_out(  # pylint: disable=protected-access
+                        m.weight.data
+                    )
                     bound = 1 / math.sqrt(fan_out)
                     nn.init.normal_(m.bias, -bound, bound)
 
@@ -122,7 +127,7 @@ class LineCNN(nn.Module):
             S can be computed from W and self.window_width
             C is self.num_classes
         """
-        _B, _C, _H, W = x.shape
+        _B, _C, _H, _W = x.shape
         x = self.convs(x)  # (B, FC_DIM, 1, Sx)
         x = x.squeeze(2).permute(0, 2, 1)  # (B, S, FC_DIM)
         x = F.relu(self.fc1(x))  # -> (B, S, FC_DIM)
@@ -130,7 +135,7 @@ class LineCNN(nn.Module):
         x = self.fc2(x)  # (B, S, C)
         x = x.permute(0, 2, 1)  # -> (B, C, S)
         if self.limit_output_length:
-            x = x[:, :, :self.output_length]
+            x = x[:, :, : self.output_length]
         return x
 
     @staticmethod

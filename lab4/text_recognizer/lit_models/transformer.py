@@ -1,20 +1,18 @@
-import pytorch_lightning as pl
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
+import wandb
 
 from .metrics import CharacterErrorRate
 from .base import BaseLitModel
 
 
-class TransformerLitModel(BaseLitModel):
+class TransformerLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
     """
     Generic PyTorch-Lightning class that must be initialized with a PyTorch module.
 
     The module must take x, y as inputs, and have a special predict() method.
     """
 
-    def __init__(self, model, args = None):
+    def __init__(self, model, args=None):
         super().__init__(model, args)
 
         self.mapping = self.model.data_config["mapping"]

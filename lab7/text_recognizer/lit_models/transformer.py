@@ -1,23 +1,18 @@
-import pytorch_lightning as pl
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-# Hide lines below until Lab 5
 import wandb
-# Hide lines above until Lab 5
 
 from .metrics import CharacterErrorRate
 from .base import BaseLitModel
 
 
-class TransformerLitModel(BaseLitModel):
+class TransformerLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
     """
     Generic PyTorch-Lightning class that must be initialized with a PyTorch module.
 
     The module must take x, y as inputs, and have a special predict() method.
     """
 
-    def __init__(self, model, args = None):
+    def __init__(self, model, args=None):
         super().__init__(model, args)
 
         self.mapping = self.model.data_config["mapping"]
@@ -50,11 +45,9 @@ class TransformerLitModel(BaseLitModel):
 
         pred = self.model.predict(x)
         # Hide lines below until Lab 5
-        pred_str = ''.join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
+        pred_str = "".join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
         try:
-            self.logger.experiment.log({
-                "val_pred_examples": [wandb.Image(x[0], caption=pred_str)]
-            })
+            self.logger.experiment.log({"val_pred_examples": [wandb.Image(x[0], caption=pred_str)]})
         except AttributeError:
             pass
         # Hide lines above until Lab 5
@@ -65,11 +58,9 @@ class TransformerLitModel(BaseLitModel):
         x, y = batch
         pred = self.model.predict(x)
         # Hide lines below until Lab 5
-        pred_str = ''.join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
+        pred_str = "".join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
         try:
-            self.logger.experiment.log({
-                "test_pred_examples": [wandb.Image(x[0], caption=pred_str)]
-            })
+            self.logger.experiment.log({"test_pred_examples": [wandb.Image(x[0], caption=pred_str)]})
         except AttributeError:
             pass
         # Hide lines above until Lab 5

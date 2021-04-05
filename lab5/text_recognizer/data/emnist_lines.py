@@ -49,9 +49,6 @@ class EMNISTLines(BaseDataModule):
             self.emnist.dims[2] * self.max_length,
         )
         self.output_dims = (self.max_length, 1)
-        self.data_train = None
-        self.data_val = None
-        self.data_test = None
         self.transform = transforms.Compose([transforms.ToTensor()])
 
     @staticmethod
@@ -77,10 +74,10 @@ class EMNISTLines(BaseDataModule):
     def data_filename(self):
         return (
             DATA_DIRNAME
-            / f"ml_{self.max_length}_o{self.min_overlap:f}_{self.max_overlap:f}_ntr{self.num_train}_ntv{self.num_val}_nte{self.num_test}_{self.with_start_end_tokens}.h5"
+            / f"ml_{self.max_length}_o{self.min_overlap:f}_{self.max_overlap:f}_ntr{self.num_train}_ntv{self.num_val}_nte{self.num_test}_{self.with_start_end_tokens}.h5"  # pylint: disable=line-too-long
         )
 
-    def prepare_data(self) -> None:
+    def prepare_data(self, *args, **kwargs) -> None:
         if self.data_filename.exists():
             return
         np.random.seed(42)
@@ -188,7 +185,6 @@ def construct_image_from_string(
 ) -> torch.Tensor:
     overlap = np.random.uniform(min_overlap, max_overlap)
     sampled_images = select_letter_samples_for_string(string, samples_by_char)
-    N = len(sampled_images)
     H, W = sampled_images[0].shape
     next_overlap_width = W - int(overlap * W)
     concatenated_image = torch.zeros((H, width), dtype=torch.uint8)

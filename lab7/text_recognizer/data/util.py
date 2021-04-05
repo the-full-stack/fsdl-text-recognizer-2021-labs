@@ -87,6 +87,6 @@ def split_dataset(base_dataset: BaseDataset, fraction: float, seed: int) -> Tupl
     """
     split_a_size = int(fraction * len(base_dataset))
     split_b_size = len(base_dataset) - split_a_size
-    return torch.utils.data.random_split(
+    return torch.utils.data.random_split(  # type: ignore
         base_dataset, [split_a_size, split_b_size], generator=torch.Generator().manual_seed(seed)
     )

@@ -29,7 +29,7 @@ def compute_input_lengths(padded_sequences: torch.Tensor) -> torch.Tensor:
     return ((padded_sequences > 0) * lengths).argmax(1) + 1
 
 
-class CTCLitModel(BaseLitModel):
+class CTCLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
     """
     Generic PyTorch-Lightning class that must be initialized with a PyTorch module.
     """

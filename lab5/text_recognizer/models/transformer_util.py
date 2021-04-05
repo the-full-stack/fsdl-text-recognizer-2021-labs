@@ -5,11 +5,13 @@ import torch.nn as nn
 from torch import Tensor
 
 
+
+
 class PositionalEncoding(torch.nn.Module):
     """Classic Attention-is-all-you-need positional encoding."""
 
     def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000) -> None:
-        super(PositionalEncoding, self).__init__()
+        super().__init__()
         self.dropout = torch.nn.Dropout(p=dropout)
         pe = self.make_pe(d_model=d_model, max_len=max_len)  # (max_len, 1, d_model)
         self.register_buffer("pe", pe)
@@ -26,8 +28,8 @@ class PositionalEncoding(torch.nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x.shape = (S, B, d_model)
-        assert x.shape[2] == self.pe.shape[2]
-        x = x + self.pe[: x.size(0)]
+        assert x.shape[2] == self.pe.shape[2]  # type: ignore
+        x = x + self.pe[: x.size(0)]  # type: ignore
         return self.dropout(x)
 
 

@@ -1,6 +1,5 @@
 from typing import Any, Dict
 import argparse
-import math
 
 import torch
 import torch.nn as nn
@@ -75,7 +74,7 @@ class CNN(nn.Module):
         torch.Tensor
             (B, C) tensor
         """
-        B_, C_, H, W = x.shape
+        _B, _C, H, W = x.shape
         assert H == W == IMAGE_SIZE
         x = self.conv1(x)
         x = self.conv2(x)
