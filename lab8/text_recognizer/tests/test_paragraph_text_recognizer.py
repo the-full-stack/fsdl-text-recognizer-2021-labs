@@ -14,7 +14,7 @@ _FILE_DIRNAME = Path(__file__).parents[0].resolve()
 _SUPPORT_DIRNAME = _FILE_DIRNAME / "support" / "paragraphs"
 
 # restricting number of samples to prevent CirleCI running out of time
-_NUM_MAX_SAMPLES = 2 if os.environ.get("CIRCLECI", False) else 100
+_NUM_MAX_SAMPLES = 1 if os.environ.get("CIRCLECI", False) else 100
 
 
 def test_paragraph_text_recognizer():
