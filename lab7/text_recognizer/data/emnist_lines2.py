@@ -1,6 +1,4 @@
-from typing import Dict, Sequence
 from collections import defaultdict
-from pathlib import Path
 import argparse
 
 from torchvision import transforms
@@ -58,9 +56,6 @@ class EMNISTLines2(BaseDataModule):
         )
         assert self.max_length <= MAX_OUTPUT_LENGTH
         self.output_dims = (MAX_OUTPUT_LENGTH, 1)
-        self.data_train = None
-        self.data_val = None
-        self.data_test = None
 
     @staticmethod
     def add_to_argparse(parser):
@@ -85,10 +80,10 @@ class EMNISTLines2(BaseDataModule):
     def data_filename(self):
         return (
             DATA_DIRNAME
-            / f"ml_{self.max_length}_o{self.min_overlap:f}_{self.max_overlap:f}_ntr{self.num_train}_ntv{self.num_val}_nte{self.num_test}.h5"
+            / f"ml_{self.max_length}_o{self.min_overlap:f}_{self.max_overlap:f}_ntr{self.num_train}_ntv{self.num_val}_nte{self.num_test}.h5"  # pylint: disable=line-too-long
         )
 
-    def prepare_data(self) -> None:
+    def prepare_data(self, *args, **kwargs) -> None:
         if self.data_filename.exists():
             return
         np.random.seed(42)
@@ -100,9 +95,9 @@ class EMNISTLines2(BaseDataModule):
         print("EMNISTLines2 loading data from HDF5...")
         if stage == "fit" or stage is None:
             with h5py.File(self.data_filename, "r") as f:
-                x_train = f["x_train"][:]
+                x_train = [Image.fromarray(_) for _ in f["x_train"][:]]
                 y_train = torch.LongTensor(f["y_train"][:])
-                x_val = f["x_val"][:]
+                x_val = [Image.fromarray(_) for _ in f["x_val"][:]]
                 y_val = torch.LongTensor(f["y_val"][:])
 
             self.data_train = BaseDataset(x_train, y_train, transform=get_transform(augment=self.augment))
@@ -195,7 +190,6 @@ def construct_image_from_string(
 ) -> torch.Tensor:
     overlap = np.random.uniform(min_overlap, max_overlap)
     sampled_images = select_letter_samples_for_string(string, samples_by_char)
-    N = len(sampled_images)
     H, W = sampled_images[0].shape
     next_overlap_width = W - int(overlap * W)
     concatenated_image = torch.zeros((H, width), dtype=torch.uint8)
@@ -214,7 +208,7 @@ def create_dataset_of_images(N, samples_by_char, sentence_generator, min_overlap
         crop = construct_image_from_string(label, samples_by_char, min_overlap, max_overlap, dims[-1])
         height = crop.shape[0]
         y1 = (IMAGE_HEIGHT - height) // 2
-        images[n, y1:(y1 + height), :] = crop
+        images[n, y1 : (y1 + height), :] = crop
         labels.append(label)
     return images, labels
 
@@ -223,18 +217,15 @@ def get_transform(augment=False):
     """Augment with brightness, slight rotation, slant, translation, scale, and Gaussian noise."""
     if not augment:
         return transforms.Compose([transforms.ToTensor()])
-    return transforms.Compose([
-        transforms.ColorJitter(brightness=(0.5, 1)),
-        transforms.RandomAffine(
-            degrees=3,
-            translate=(0, 0.05),
-            scale=(0.4, 1.1),
-            shear=(-40, 50),
-            resample=Image.BILINEAR,
-            fillcolor=0
-        ),
-        transforms.ToTensor(),
-    ])
+    return transforms.Compose(
+        [
+            transforms.ColorJitter(brightness=(0.5, 1)),
+            transforms.RandomAffine(
+                degrees=3, translate=(0, 0.05), scale=(0.4, 1.1), shear=(-40, 50), resample=Image.BILINEAR, fillcolor=0
+            ),
+            transforms.ToTensor(),
+        ]
+    )
 
 
 if __name__ == "__main__":

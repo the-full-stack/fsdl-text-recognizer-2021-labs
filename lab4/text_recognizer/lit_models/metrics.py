@@ -11,8 +11,10 @@ class CharacterErrorRate(pl.metrics.Metric):
     def __init__(self, ignore_tokens: Sequence[int], *args):
         super().__init__(*args)
         self.ignore_tokens = set(ignore_tokens)
-        self.add_state("error", default=torch.tensor(0.0), dist_reduce_fx="sum")
-        self.add_state("total", default=torch.tensor(0), dist_reduce_fx="sum")
+        self.add_state("error", default=torch.tensor(0.0), dist_reduce_fx="sum")  # pylint: disable=not-callable
+        self.add_state("total", default=torch.tensor(0), dist_reduce_fx="sum")  # pylint: disable=not-callable
+        self.error: torch.Tensor
+        self.total: torch.Tensor
 
     def update(self, preds: torch.Tensor, targets: torch.Tensor) -> None:
         N = preds.shape[0]
@@ -30,14 +32,14 @@ class CharacterErrorRate(pl.metrics.Metric):
 
 def test_character_error_rate():
     metric = CharacterErrorRate([0, 1])
-    X = torch.tensor(
+    X = torch.tensor(  # pylint: disable=not-callable
         [
             [0, 2, 2, 3, 3, 1],  # error will be 0
             [0, 2, 1, 1, 1, 1],  # error will be .75
             [0, 2, 2, 4, 4, 1],  # error will be .5
         ]
     )
-    Y = torch.tensor(
+    Y = torch.tensor(  # pylint: disable=not-callable
         [
             [0, 2, 2, 3, 3, 1],
             [0, 2, 2, 3, 3, 1],

@@ -12,7 +12,6 @@ import random
 
 from PIL import Image, ImageFile, ImageOps
 import numpy as np
-import torch
 from torchvision import transforms
 
 from text_recognizer.data.util import BaseDataset, convert_strings_to_labels, split_dataset
@@ -28,6 +27,7 @@ TRAIN_FRAC = 0.8
 IMAGE_HEIGHT = 56
 IMAGE_WIDTH = 2048  # Rounding up the actual empirical max to a power of 2
 
+
 class IAMLines(BaseDataModule):
     """
     IAM Handwriting database lines.
@@ -40,9 +40,6 @@ class IAMLines(BaseDataModule):
         self.inverse_mapping = {v: k for k, v in enumerate(self.mapping)}
         self.dims = (1, IMAGE_HEIGHT, IMAGE_WIDTH)  # We assert that this is correct in setup()
         self.output_dims = (89, 1)  # We assert that this is correct in setup()
-        self.data_train = None
-        self.data_val = None
-        self.data_test = None
 
     @staticmethod
     def add_to_argparse(parser):
@@ -50,34 +47,34 @@ class IAMLines(BaseDataModule):
         parser.add_argument("--augment_data", type=str, default="true")
         return parser
 
-    def prepare_data(self):
+    def prepare_data(self, *args, **kwargs) -> None:
         if PROCESSED_DATA_DIRNAME.exists():
             return
 
         print("Cropping IAM line regions...")
         iam = IAM()
         iam.prepare_data()
-        crops_trainval, labels_trainval = line_crops_and_labels(iam, 'trainval')
-        crops_test, labels_test = line_crops_and_labels(iam, 'test')
+        crops_trainval, labels_trainval = line_crops_and_labels(iam, "trainval")
+        crops_test, labels_test = line_crops_and_labels(iam, "test")
 
         shapes = np.array([crop.size for crop in crops_trainval + crops_test])
         aspect_ratios = shapes[:, 0] / shapes[:, 1]
 
         print("Saving images, labels, and statistics...")
-        save_images_and_labels(crops_trainval, labels_trainval, 'trainval', PROCESSED_DATA_DIRNAME)
-        save_images_and_labels(crops_test, labels_test, 'test', PROCESSED_DATA_DIRNAME)
-        with open(PROCESSED_DATA_DIRNAME / '_max_aspect_ratio.txt', 'w') as file:
+        save_images_and_labels(crops_trainval, labels_trainval, "trainval", PROCESSED_DATA_DIRNAME)
+        save_images_and_labels(crops_test, labels_test, "test", PROCESSED_DATA_DIRNAME)
+        with open(PROCESSED_DATA_DIRNAME / "_max_aspect_ratio.txt", "w") as file:
             file.write(str(aspect_ratios.max()))
 
-    def setup(self, stage: str = None):
-        with open(PROCESSED_DATA_DIRNAME / '_max_aspect_ratio.txt') as file:
+    def setup(self, stage: str = None) -> None:
+        with open(PROCESSED_DATA_DIRNAME / "_max_aspect_ratio.txt") as file:
             max_aspect_ratio = float(file.read())
             image_width = int(IMAGE_HEIGHT * max_aspect_ratio)
             assert image_width <= IMAGE_WIDTH
 
         if stage == "fit" or stage is None:
-            x_trainval, labels_trainval = load_line_crops_and_labels('trainval', PROCESSED_DATA_DIRNAME)
-            assert self.output_dims[0] >= max([len(l) for l in labels_trainval]) + 2  # Add 2 because of start and end tokens.
+            x_trainval, labels_trainval = load_line_crops_and_labels("trainval", PROCESSED_DATA_DIRNAME)
+            assert self.output_dims[0] >= max([len(_) for _ in labels_trainval]) + 2  # Add 2 for start/end tokens.
 
             y_trainval = convert_strings_to_labels(labels_trainval, self.inverse_mapping, length=self.output_dims[0])
             data_trainval = BaseDataset(x_trainval, y_trainval, transform=get_transform(IMAGE_WIDTH, self.augment))
@@ -86,8 +83,8 @@ class IAMLines(BaseDataModule):
 
         # Note that test data does not go through augmentation transforms
         if stage == "test" or stage is None:
-            x_test, labels_test = load_line_crops_and_labels('test', PROCESSED_DATA_DIRNAME)
-            assert self.output_dims[0] >= max([len(l) for l in labels_test]) + 2  # Add 2 because of start and end tokens.
+            x_test, labels_test = load_line_crops_and_labels("test", PROCESSED_DATA_DIRNAME)
+            assert self.output_dims[0] >= max([len(_) for _ in labels_test]) + 2
 
             y_test = convert_strings_to_labels(labels_test, self.inverse_mapping, length=self.output_dims[0])
             self.data_test = BaseDataset(x_test, y_test, transform=get_transform(IMAGE_WIDTH))
@@ -96,10 +93,10 @@ class IAMLines(BaseDataModule):
             self._verify_output_dims(labels_trainval=labels_trainval, labels_test=labels_test)
 
     def _verify_output_dims(self, labels_trainval, labels_test):
-        max_label_length = max([len(label) for label in labels_trainval + labels_test]) + 2  # Add 2 because of start and end tokens.
+        max_label_length = max([len(label) for label in labels_trainval + labels_test]) + 2
         output_dims = (max_label_length, 1)
         if output_dims != self.output_dims:
-            raise RuntimeError(dims, output_dims)
+            raise RuntimeError(output_dims, self.output_dims)
 
     def __repr__(self) -> str:
         """Print info about the dataset."""
@@ -136,7 +133,7 @@ def line_crops_and_labels(iam: IAM, split: str):
         image = ImageOps.invert(image)
         labels += iam.line_strings_by_id[filename.stem]
         crops += [
-            image.crop([region[_] for _ in ['x1', 'y1', 'x2', 'y2']])
+            image.crop([region[_] for _ in ["x1", "y1", "x2", "y2"]])
             for region in iam.line_regions_by_id[filename.stem]
         ]
     assert len(crops) == len(labels)
@@ -146,28 +143,26 @@ def line_crops_and_labels(iam: IAM, split: str):
 def save_images_and_labels(crops: Sequence[Image.Image], labels: Sequence[str], split: str, data_dirname: Path):
     (data_dirname / split).mkdir(parents=True, exist_ok=True)
 
-    with open(data_dirname / split / '_labels.json', 'w') as f:
+    with open(data_dirname / split / "_labels.json", "w") as f:
         json.dump(labels, f)
     for ind, crop in enumerate(crops):
-        crop.save(data_dirname / split / f'{ind}.png')
+        crop.save(data_dirname / split / f"{ind}.png")
+
 
 def load_line_crops_and_labels(split: str, data_dirname: Path):
     """Load line crops and labels for given split from processed directory."""
-    with open(data_dirname / split / '_labels.json') as file:
+    with open(data_dirname / split / "_labels.json") as file:
         labels = json.load(file)
 
-    crop_filenames = sorted(
-        (data_dirname / split).glob('*.png'),
-        key=lambda filename: int(Path(filename).stem)
-    )
+    crop_filenames = sorted((data_dirname / split).glob("*.png"), key=lambda filename: int(Path(filename).stem))
     crops = [util.read_image_pil(filename, grayscale=True) for filename in crop_filenames]
     assert len(crops) == len(labels)
     return crops, labels
 
 
-
 def get_transform(image_width, augment=False):
     """Augment with brightness, slight rotation, slant, translation, scale, and Gaussian noise."""
+
     def embed_crop(crop, augment=augment, image_width=image_width):
         # crop is PIL.image of dtype="L" (so values range from 0 -> 255)
         image = Image.new("L", (image_width, IMAGE_HEIGHT))
@@ -196,12 +191,7 @@ def get_transform(image_width, augment=False):
     if augment:
         transforms_list += [
             transforms.ColorJitter(brightness=(0.8, 1.6)),
-            transforms.RandomAffine(
-                degrees=1,
-                shear=(-30, 20),
-                resample=Image.BILINEAR,
-                fillcolor=0
-            ),
+            transforms.RandomAffine(degrees=1, shear=(-30, 20), resample=Image.BILINEAR, fillcolor=0),
         ]
     transforms_list.append(transforms.ToTensor())
     return transforms.Compose(transforms_list)

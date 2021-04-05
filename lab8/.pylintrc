@@ -1,0 +1,24 @@
+[TYPECHECK]
+# Without this, pylint will complain that torch does not contain some methods
+# https://github.com/pytorch/pytorch/issues/701
+generated-members=numpy.*,torch.*
+
+[MESSAGES CONTROL]
+disable=
+  abstract-method,
+  arguments-differ,
+  attribute-defined-outside-init,
+  duplicate-code,
+  invalid-name,
+  fixme,
+  missing-function-docstring,
+  missing-module-docstring,
+  too-few-public-methods
+
+[FORMAT]
+max-line-length = 120
+
+[DESIGN]
+max-attributes = 18
+max-args = 8
+max-locals = 16

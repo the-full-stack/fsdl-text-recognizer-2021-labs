@@ -7,11 +7,9 @@ import xml.etree.ElementTree as ElementTree
 import zipfile
 
 from boltons.cacheutils import cachedproperty
-from PIL import Image, ImageOps
 import toml
 
 from text_recognizer.data.base_data_module import BaseDataModule, _download_raw_dataset, load_and_print_info
-from text_recognizer import util
 
 
 RAW_DATA_DIRNAME = BaseDataModule.data_dirname() / "raw" / "iam"
@@ -20,7 +18,7 @@ DL_DATA_DIRNAME = BaseDataModule.data_dirname() / "downloaded" / "iam"
 EXTRACTED_DATASET_DIRNAME = DL_DATA_DIRNAME / "iamdb"
 
 DOWNSAMPLE_FACTOR = 2  # If images were downsampled, the regions must also be.
-LINE_REGION_PADDING = 16 # add this many pixels around the exact coordinates
+LINE_REGION_PADDING = 16  # add this many pixels around the exact coordinates
 
 
 class IAM(BaseDataModule):
@@ -41,10 +39,10 @@ class IAM(BaseDataModule):
         super().__init__(args)
         self.metadata = toml.load(METADATA_FILENAME)
 
-    def prepare_data(self):
+    def prepare_data(self, *args, **kwargs) -> None:
         if self.xml_filenames:
             return
-        filename = _download_raw_dataset(self.metadata, DL_DATA_DIRNAME)
+        filename = _download_raw_dataset(self.metadata, DL_DATA_DIRNAME)  # type: ignore
         _extract_raw_dataset(filename, DL_DATA_DIRNAME)
 
     @property
@@ -61,7 +59,10 @@ class IAM(BaseDataModule):
 
     @property
     def split_by_id(self):
-        return {filename.stem: 'test' if filename.stem in self.metadata['test_ids'] else 'trainval' for filename in self.form_filenames}
+        return {
+            filename.stem: "test" if filename.stem in self.metadata["test_ids"] else "trainval"
+            for filename in self.form_filenames
+        }
 
     @cachedproperty
     def line_strings_by_id(self):
@@ -75,10 +76,10 @@ class IAM(BaseDataModule):
 
     def __repr__(self):
         """Print info about the dataset."""
-        return "IAM Dataset\n" f"Num forms total: {len(self.xml_filenames)}\nNum in test set: {len(self.metadata['test_ids'])}\n"
+        return "IAM Dataset\n" f"Num total: {len(self.xml_filenames)}\nNum test: {len(self.metadata['test_ids'])}\n"
 
 
-def _extract_raw_dataset(filename: Path, dirname: Path):
+def _extract_raw_dataset(filename: Path, dirname: Path) -> None:
     print("Extracting IAM data")
     curdir = os.getcwd()
     os.chdir(dirname)

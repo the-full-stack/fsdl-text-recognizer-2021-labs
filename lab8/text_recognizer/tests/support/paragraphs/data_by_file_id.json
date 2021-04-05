@@ -1,0 +1,22 @@
+{
+    "a01-087": {
+        "ground_truth_text": "Mr. Brown, passionate and warm-hearted, led\nLabour's attack on the higher health\ncharges. Mr. Powell, white-faced and outwardly\nunemotional, replied with a statistical state-\nment - and ended by inciting Labour M Ps\nto angry uproar. One dealt with the human\nissue behind the Health Service; the other\ntried to show that the balance-sheet must\nalways come first.",
+        "predicted_text": "Mr. Brown, passionate and warm-hearted, led\nLabour's attack on the higher health\ncharges. Mr. Powell, white-faced and outwardly\nunemotional, replied with a statistical state-\nment - and ended by inciting Labour M Ps\nto angry uproar. One dealt with the human\nissue behind the Health Service; the other\ntried to show that the balance-sheet must\nalways come first.",
+        "character_error_rate": 0
+    },
+    "a01-077": {
+        "ground_truth_text": "And, since this is election year in West\nGermany, Dr. Adenauer is in a tough\nspot. Joyce Egginton cables: President\nKennedy at his Washington Press con-\nference admitted he did not know\nwhether America was lagging behind\nRussia in missile power. He said he\nwas waiting for his senior military\naides to come up with the answer on\nFebruary 20.",
+        "predicted_text": "And, since this is election year in West\nGermany, Dr. Adenauer is in a tough\nspot. Joyce Egginton cables: President\nKennedy at his Washington Press con-\nference admitted he did not know\nwhether America was lagging behind\nRussia in missile power. He said he\nwas waiting for his senior military\naides to come up with the answer on\nFebruary 20.",
+        "character_error_rate": 0
+    },
+    "a02-046": {
+        "ground_truth_text": "At 9.40 Mr. Edusei, Minister of Transport and pro-\nbably the toughest man in Mr. Nkrumah's team,\ndrove up to the Kingsway Stores and faced the\ndemonstrators, most of them shopgirls in overalls.\n\"If you have not dispersed by ten o'clock,\" he\ntold them, 'the police will act.' At five to ten\na posse of police arrived and in less than\ntwo minutes the crowd had gone.",
+        "predicted_text": "At 9.40 Mr. Edusei, Minister of Transport and pro-\nbably the toughest man in Mr. Nkrumah's team,\ndrove up to the Kingsway Stores and faced the\ndemonstrators, most of them shopgirls in overalls.\n\"If you have not dispersed by ten o'clock,\" he\ntold them, 'the police will act.' At five to ten\na posse of police arrived and in less than\ntwo minutes the crowd had gone.",
+        "character_error_rate": 0
+    },
+    "a01-107": {
+        "ground_truth_text": "We believe that a comprehensive medical service, free to the patient\nat the point of need and with one standard for all sick\npeople, is good and attainable. \"We remain for it. But the Tories\nnever were.\" Interrupted by angry Tories, Mr. Brown retorted:\n\"The jackals bay when there is nothing better they can do.\"",
+        "predicted_text": "We believe that a comprehensive medical service, free to the patient\nat the point of neet and with one stonderd for all sick\npeople, is good and attainable. \"We reach for it. But the Tories\nnever were.\" Herfed by any Pries, Mr. Brown restarted:\n\"The jackals bay when there is nothing better they can do.\"",
+        "character_error_rate": 0.060897435897435896
+    }
+}

@@ -1,6 +1,3 @@
-"""
-How to make inference faster: https://pgresia.medium.com/making-pytorch-transformer-twice-as-fast-on-sequence-generation-2a8a7f1e7389
-"""
 import argparse
 from typing import Any, Dict
 import math
@@ -57,12 +54,7 @@ class LineCNNTransformer(nn.Module):
         self.y_mask = generate_square_subsequent_mask(self.max_output_length)
 
         self.transformer_decoder = nn.TransformerDecoder(
-            nn.TransformerDecoderLayer(
-                d_model=self.dim,
-                nhead=tf_nhead,
-                dim_feedforward=tf_fc_dim,
-                dropout=tf_dropout
-            ),
+            nn.TransformerDecoderLayer(d_model=self.dim, nhead=tf_nhead, dim_feedforward=tf_fc_dim, dropout=tf_dropout),
             num_layers=tf_layers,
         )
 
@@ -106,13 +98,15 @@ class LineCNNTransformer(nn.Module):
         torch.Tensor
             (Sy, B, C) logits
         """
-        y_padding_mask = (y == self.padding_token)
+        y_padding_mask = y == self.padding_token
         y = y.permute(1, 0)  # (Sy, B)
         y = self.embedding(y) * math.sqrt(self.dim)  # (Sy, B, E)
         y = self.pos_encoder(y)  # (Sy, B, E)
         Sy = y.shape[0]
         y_mask = self.y_mask[:Sy, :Sy].type_as(x)
-        output = self.transformer_decoder(tgt=y, memory=x, tgt_mask=y_mask, tgt_key_padding_mask=y_padding_mask)  # (Sy, B, E)
+        output = self.transformer_decoder(
+            tgt=y, memory=x, tgt_mask=y_mask, tgt_key_padding_mask=y_padding_mask
+        )  # (Sy, B, E)
         output = self.fc(output)  # (Sy, B, C)
         return output
 
