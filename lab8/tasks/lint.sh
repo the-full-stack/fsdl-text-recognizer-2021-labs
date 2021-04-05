@@ -15,19 +15,19 @@ else
 fi
 
 echo "pylint"
-pylint api text_recognizer training || FAILURE=true
+pylint text_recognizer training || FAILURE=true
 
 echo "pycodestyle"
-pycodestyle api text_recognizer training || FAILURE=true
+pycodestyle text_recognizer training || FAILURE=true
 
 echo "pydocstyle"
-pydocstyle api text_recognizer training || FAILURE=true
+pydocstyle text_recognizer training || FAILURE=true
 
 echo "mypy"
-mypy api text_recognizer training || FAILURE=true
+mypy text_recognizer training || FAILURE=true
 
 echo "bandit"
-bandit -ll -r {api,text_recognizer,training} || FAILURE=true
+bandit -ll -r {text_recognizer,training} || FAILURE=true
 
 echo "shellcheck"
 find . -name "*.sh" -print0 | xargs -0 shellcheck || FAILURE=true
