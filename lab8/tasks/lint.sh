@@ -2,12 +2,17 @@
 set -uo pipefail
 set +e
 
-export PYTHONPATH=.:$PYTHONPATH
-
 FAILURE=false
 
 echo "safety (failure is tolerated)"
-safety check -r requirements/prod.txt -r requirements/dev.txt
+FILE=requirements/prod.txt
+if [ -f "$FILE" ]; then
+    # We're in the main repo
+    safety check -r requirements/prod.txt -r requirements/dev.txt
+else
+    # We're in the labs repo
+    safety check -r ../requirements/prod.txt -r ../requirements/dev.txt
+fi
 
 echo "pylint"
 pylint api text_recognizer training || FAILURE=true
