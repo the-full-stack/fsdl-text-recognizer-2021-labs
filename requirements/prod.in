@@ -5,6 +5,7 @@ h5py
 numpy
 pytorch-lightning
 requests
+smart_open
 toml
 torch<1.8
 torchvision<0.9

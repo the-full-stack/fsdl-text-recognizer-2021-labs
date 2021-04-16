@@ -1,5 +1,9 @@
 import torch.nn as nn
-import wandb
+try:
+    import wandb
+except ModuleNotFoundError:
+    pass
+
 
 from .metrics import CharacterErrorRate
 from .base import BaseLitModel

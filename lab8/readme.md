@@ -3,19 +3,20 @@
 ## Goal of the lab
 
 - Add linting
-- Add prediction system functionality tests
-- Add an evaluation test
-- Add a training system infrastructure test
+- Add prediction tests
+- Add evaluation tests
 - Set up continuous integration using CircleCI
 
 ## Follow along
 
-We have upgraded some packages, so we should install them with `make pip-tools`.
+Let's update to the most recent version of the labs.
+
+In the repository, do
 
 ```
 git pull
-conda activate fsdl-text-recognizer-2021  # If on your own system
-make pip-tools                            # If on your own system
+conda activate fsdl-text-recognizer-2021  # If on own machine
+make pip-tools
 cd lab8/
 ```
 
@@ -24,35 +25,25 @@ cd lab8/
 In the top-level directory, the new files are:
 
 ```
-.circleci/config.yml
+- .circleci/config.yml
 ```
 
-And in the `lab8` directory, we added a number of files:
+And in the `lab8` directory, we added:
 
-For linting:
 ```
-.pylintrc
-pyproject.toml
-setup.cfg
-tasks/lint.sh
-```
-
-For functionality tests:
-```
-text_recognizer/tests/support/paragraphs/*.png
-text_recognizer/tests/support/paragraphs/data_by_file_id.json
-text_recognizer/tests/test_paragraph_text_recognizer.py
-```
-
-For evaluation test:
-```
-text_recognizer/evaluation/evaluate_paragraph_text_recognizer.py
-```
-
-For infrastruture test:
-```
-text_recognizer/data/fake_images.py
-training/tests/test_run_experiment.sh
+- .pylintrc
+- pyproject.toml
+- setup.cfg
+- tasks/lint.sh
+- text_recognizer/data/fake_images.py
+- text_recognizer/evaluation/evaluate_paragraph_text_recognizer.py
+- text_recognizer/tests/test_paragraph_text_recognizer.py
+- text_recognizer/tests/support/paragraphs/a01-107.png
+- text_recognizer/tests/support/paragraphs/a02-046.png
+- text_recognizer/tests/support/paragraphs/data_by_file_id.json
+- text_recognizer/tests/support/paragraphs/a01-087.png
+- text_recognizer/tests/support/paragraphs/a01-077.png
+- training/tests/test_run_experiment.sh
 ```
 
 ## Linting
@@ -64,17 +55,11 @@ It is a must for any multi-developer codebase, in order to maintain a basic code
 Running the new file `tasks/lint.sh` fully lints our codebase with a few different checkers:
 
 - `safety` scans our Python package dependencies for known security vulnerabilities
-
 - `pylint` does static analysis of Python files and reports both style and bug problems
-
 - `pycodestyle` checks for simple code style guideline violations (somewhat overlapping with `pylint`)
-
 - `pydocstyle` checks for docstring guideline violations
-
 - `mypy` performs static type checking of Python files
-
 - `bandit` finds common security vulnerabilities
-
 - `shellcheck` finds bugs and potential bugs in shell scrips
 
 A note: in writing Bash scripts, I often refer to [this excellent guide](http://redsymbol.net/articles/unofficial-bash-strict-mode/).
@@ -82,9 +67,9 @@ A note: in writing Bash scripts, I often refer to [this excellent guide](http://
 Note that the linters are configured using `.pylintrc` and `setup.cfg` files, as well as flags specified in `lint.sh`.
 
 Lastly, we use the automated Python formatter `black` to make it even easier for us to be compatible with some linters and avoid arguing about style.
-You can run it in the directory with `black .`, or better yet, configure your text editor to automatically run it every time you save a file: https://dev.to/adamlombard/how-to-use-the-black-python-code-formatter-in-vscode-3lo0
+You can run it in the direcotry with `black .`, or better yet, configure your text editor to automatically run it every time you save a file: https://dev.to/adamlombard/how-to-use-the-black-python-code-formatter-in-vscode-3lo0
 
-## Prediction system functionality tests
+## Prediction tests
 
 In Lab 7, we added `ParagraphTextRecognizer` which takes an image and returns the text recognized in it.
 
@@ -104,17 +89,15 @@ This is a longer test, and benefits from having a GPU available.
 
 To run, do `pytest -s text_recognizer/evaluation/evaluate_paragraph_text_recognizer.py`
 
-## Training system infrastructure tests
+## Training tests
 
 Lastly, we want to have a test for our training system (`training/run_experiment.py`), to make sure it correctly reads command-line flags and doesn't fail in training.
 
 To do this, we add `training/tests/test_run_experiment.sh`, which runs a quick experiment using a special `FakeImages` dataset (so we don't have to download any data).
 
-## Continuous Integration
+## Setting up CircleCI
 
 The linting, as well prediction and training tests, should be run every time we push code upstream to our repo.
-
-### Setting up CircleCI
 
 We use CircleCI to do this, and so add a file outside of the `lab8` directory (in the top-level directory): `.circleci/config.yml`
 
