@@ -37,13 +37,15 @@ training/
 
 First, we will get a Flask web server up and running and serving predictions.
 
+Flask is a standard Python library for web servers.
+If we were actually deploying to production using this method, we would use FastAPI, which works almost exactly the same but is more modern and is faster at responding to requests.
+
 ```
 python api_server/app.py
 ```
 
-Open up another terminal tab (click on the '+' button under 'File' to open the
-launcher). In this terminal, we'll send some test image to the web server
-we're running in the first terminal.
+Open up another terminal tab.
+In this terminal, we'll send some test image to the web server we're running in the first terminal.
 
 **Make sure to `cd` into the `lab9` directory in this new terminal.**
 
@@ -52,15 +54,21 @@ export API_URL=http://0.0.0.0:8000
 (echo -n '{ "image": "data:image/png;base64,'$(base64 -w0 -i text_recognizer/tests/support/paragraphs/a01-077.png)'" }') | curl -X POST "${API_URL}/v1/predict" -H 'Content-Type: application/json' -d @-
 ```
 
+What we did is send a base64-encoded image as a POST request to the web server.
+
 If you want to look at the image you just sent, you can navigate to
 `lab9/text_recognizer/tests/support/paragraphs` in the file browser.
 
-We can also send a request specifying a URL to an image:
+In the POST request, we encoded the whole image.
+
+We can instead send a GET request specifying a URL to an image as a query paramter of the API URL:
 ```
 curl "${API_URL}/v1/predict?image_url=https://fsdl-public-assets.s3-us-west-2.amazonaws.com/paragraphs/a01-077.png"
 ```
 
-You can shut down your flask server now (Ctrl + C).
+Both ways are common.
+
+You can shut down your web server now (Ctrl + C).
 
 ## Adding web server tests
 
@@ -75,10 +83,12 @@ pytest -s api_server/tests
 
 ## Running web server in Docker
 
-Now, we'll build a Docker image with our application.
+What we have now, we *could* deploy.
+As part of deployment, we would have to ensure that the Python version is correct, install dependencies, check out the whole repo, etc.
+To make this simpler, we can build a Docker image with everything our application needs, and nothing it doesn't (like training code).
 
 First off, if you don't already have `docker` installed on your system, do so: https://docs.docker.com/get-docker/
-You won't be able to follow this part on Google Colab, unfortunately.
+(You won't be able to follow this part on Google Colab, unfortunately.)
 
 Still in the `lab9` directory, run:
 
@@ -87,7 +97,7 @@ docker build -t text-recognizer/api-server -f api_server/Dockerfile .
 ```
 
 This should take a couple of minutes to complete.
-While we wait, we can look at the Dockerfile in `api_server/Dockerfile`, which defines how we're building the Docker image.
+While we wait, let's look at the Dockerfile in `api_server/Dockerfile`, which defines how we're building the Docker image.
 
 When it's finished, you can run the server with
 
