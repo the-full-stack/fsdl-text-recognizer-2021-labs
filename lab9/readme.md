@@ -5,7 +5,7 @@
 - First, we speed up our ParagraphTextRecognizer model with TorchScript
 - Next, we wrap the model in a web app, and send it some requests
 - We package up the web app and model as a Docker container, and run it that way
-- Lastly, we deploy the web app to production using AWS Lambda
+- Lastly, we prepare to deploy as a serverless function using AWS Lambda, getting it working locally
 
 ## Follow along
 
@@ -41,9 +41,23 @@ text_recognizer/
 training/
 ```
 
+## First, TorchScript
+
+To speed up inference, we can compile our trained PyTorch model using TorchScript.
+
+Check out the minimal changes in `text_recognizer/paragraph_text_recognizer.py`:
+
+```python
+self.scripted_model = self.lit_model.to_torchscript(method="script", file_path=None)
+...
+y_pred = self.scripted_model(image_tensor.unsqueeze(axis=0))[0]
+```
+
+The conversion takes a few seconds, but then all inference calls are significantly sped up.
+
 ## Serving predictions from a web server
 
-First, we will get a Flask web server up and running and serving predictions.
+Now, let's get a Flask web server up and running and serving predictions.
 
 Flask is a standard Python library for web servers.
 If we were actually deploying to production using this method, we would use FastAPI, which works almost exactly the same but is more modern and is faster at responding to requests.
@@ -101,6 +115,7 @@ First off, if you don't already have `docker` installed on your system, do so: h
 Still in the `lab9` directory, run:
 
 ```sh
+cp ../requirements/prod.txt requirements.txt
 docker build -t text-recognizer/api-server -f api_server/Dockerfile .
 ```
 
@@ -136,6 +151,7 @@ Check out `api_serverless/app.py` and `api_serverless/Dockerfile`.
 We can build the container with
 
 ```sh
+cp ../requirements/prod.txt requirements.txt
 docker build -t text-recognizer/api-serverless -f api_serverless/Dockerfile .
 ```
 
@@ -158,3 +174,6 @@ Or, we can put a lightweight REST gateway in front of it, and also set up some b
 ## Homework
 
 Follow these instructions!
+If you're able to, then you're able to get the basics of Docker and Python web servers.
+
+For a deeper understanding, try using FastAPI instead of Flask.

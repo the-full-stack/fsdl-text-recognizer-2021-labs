@@ -6,7 +6,7 @@ RUN set -ex && mkdir /repo
 WORKDIR /repo
 
 # Install Python dependencies
-COPY requirements/prod.txt ./requirements.txt
+COPY requirements.txt ./requirements.txt
 RUN sed -i 's/cu101/cpu/' requirements.txt
 RUN pip install --upgrade pip~=21.0.0
 RUN pip install -r requirements.txt
