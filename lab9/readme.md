@@ -9,10 +9,18 @@
 
 ## Follow along
 
+Let's update to the most recent version of the labs.
+
+In this repository, do:
+
 ```
 git pull
+conda activate fsdl-text-recognizer-2021  # If on own machine
+make pip-tools
 cd lab9
 ```
+
+## New files
 
 This lab has quite a few new files, mostly in the new `api/` directory.
 
