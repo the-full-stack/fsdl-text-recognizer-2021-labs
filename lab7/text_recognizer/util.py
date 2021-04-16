@@ -1,14 +1,15 @@
 """Utility functions for text_recognizer module."""
+from io import BytesIO
 from pathlib import Path
 from typing import Union
 from urllib.request import urlretrieve
-
-# import base64
+import base64
 import hashlib
 
 from PIL import Image
 from tqdm import tqdm
 import numpy as np
+import smart_open
 
 
 def to_categorical(y, num_classes):
@@ -17,7 +18,12 @@ def to_categorical(y, num_classes):
 
 
 def read_image_pil(image_uri: Union[Path, str], grayscale=False) -> Image:
-    with Image.open(image_uri) as image:
+    with smart_open.open(image_uri, "rb") as image_file:
+        return read_image_pil_file(image_file, grayscale)
+
+
+def read_image_pil_file(image_file, grayscale=False) -> Image:
+    with Image.open(image_file) as image:
         if grayscale:
             image = image.convert(mode="L")
         else:

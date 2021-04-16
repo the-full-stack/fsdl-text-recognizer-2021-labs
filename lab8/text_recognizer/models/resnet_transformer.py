@@ -173,7 +173,7 @@ class ResnetTransformer(nn.Module):
             y = output_tokens[:, :Sy]  # (B, Sy)
             output = self.decode(x, y)  # (Sy, B, C)
             output = torch.argmax(output, dim=-1)  # (Sy, B)
-            output_tokens[:, Sy] = output[-1:]  # Set the last output token
+            output_tokens[:, Sy : Sy + 1] = output[-1:]  # Set the last output token
 
             # Early stopping of prediction loop to speed up prediction
             if ((output_tokens[:, Sy] == self.end_token) | (output_tokens[:, Sy] == self.padding_token)).all():

@@ -1,0 +1,45 @@
+command:
+  - ${env}
+  - ${interpreter}
+  - ${program}
+  - "--wandb"
+  - ${args}
+program: training/run_experiment.py
+method: random
+metric:
+  goal: minimize
+  name: val_loss
+early_terminate:
+  type: hyperband
+  min_iter: 20
+parameters:
+  conv_dim:
+    values: [32, 64]
+  window_width:
+    values: [8, 16]
+  window_stride:
+    value: 8
+  fc_dim:
+    values: [512, 1024]
+  tf_dim:
+    values: [128, 256]
+  tf_fc_dim:
+    values: [256, 1024]
+  tf_nhead:
+    values: [4, 8]
+  tf_layers:
+    values: [2, 4, 6]
+  lr:
+    values: [0.01, 0.001, 0.0003]
+  num_workers:
+    value: 20
+  gpus:
+    value: -1
+  data_class:
+    value: EMNISTLines2
+  model_class:
+    value: LineCNNTransformer
+  loss:
+    value: transformer
+  precision:
+    value: 16

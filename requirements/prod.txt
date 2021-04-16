@@ -110,6 +110,8 @@ six==1.15.0
     #   grpcio
     #   protobuf
     #   tensorboard
+smart-open==5.0.0
+    # via -r requirements/prod.in
 tensorboard-plugin-wit==1.8.0
     # via tensorboard
 tensorboard==2.4.1
