@@ -4,7 +4,7 @@ Welcome!
 
 As part of Full Stack Deep Learning 2021, we will incrementally develop a complete deep learning codebase to understand the content of handwritten paragraphs.
 
-We will use the modern stack of PyTorch and PyTorch-Ligtning
+We will use the modern stack of PyTorch and PyTorch-Lightning
 
 We will use the main workhorses of DL today: CNNs, RNNs, and Transformers
 
