@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import torch
+import pytorch_lightning as pl
 
 from .base import BaseLitModel
 from .metrics import CharacterErrorRate
@@ -45,6 +46,10 @@ class CTCLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
 
         self.loss_fn = torch.nn.CTCLoss(zero_infinity=True)
         # https://pytorch.org/docs/stable/generated/torch.nn.CTCLoss.html
+        
+        self.train_acc = pl.metrics.Accuracy()
+        self.val_acc = pl.metrics.Accuracy()
+        self.test_acc = pl.metrics.Accuracy()
 
         ignore_tokens = [start_index, end_index, self.padding_index]
         self.val_cer = CharacterErrorRate(ignore_tokens)
