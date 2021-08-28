@@ -146,16 +146,22 @@ class LineCNNTransformer(nn.Module):
 
         output_tokens = (torch.ones((B, S)) * self.padding_token).type_as(x).long()  # (B, S)
         output_tokens[:, 0] = self.start_token  # Set start token
+        is_not_end_token = torch.ones((B,), dtype=torch.bool, device=x.device)
         for Sy in range(1, S):
-            y = output_tokens[:, :Sy]  # (B, Sy)
-            output = self.decode(x, y)  # (Sy, B, C)
-            output = torch.argmax(output, dim=-1)  # (Sy, B)
-            output_tokens[:, Sy] = output[-1:]  # Set the last output token
+            y_sy = output_tokens[is_not_end_token, :Sy]  # (B_mod, Sy)
+            x_sy = x[:, is_not_end_token, :]
+            output = self.decode(x_sy, y_sy)  # (Sy, B_mod, C)
+            output = torch.argmax(output, dim=-1)  # (Sy, B_mod)
+            last_output_token = output[-1:]  # (1, B_mod)
+            output_tokens[is_not_end_token, Sy] = last_output_token  # Set the last output token
+            is_not_end_token[is_not_end_token] = last_output_token != self.end_token
+            if not is_not_end_token.any():
+                break
 
         # Set all tokens after end token to be padding
-        for Sy in range(1, S):
-            ind = (output_tokens[:, Sy - 1] == self.end_token) | (output_tokens[:, Sy - 1] == self.padding_token)
-            output_tokens[ind, Sy] = self.padding_token
+        # for Sy in range(1, S):
+        #    ind = (output_tokens[:, Sy - 1] == self.end_token) | (output_tokens[:, Sy - 1] == self.padding_token)
+        #    output_tokens[ind, Sy] = self.padding_token
 
         return output_tokens  # (B, Sy)
 
