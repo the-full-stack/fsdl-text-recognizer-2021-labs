@@ -13,6 +13,10 @@ early_terminate:
   type: hyperband
   min_iter: 20
 parameters:
+  max_epochs:
+    value: 60
+  batch_size:
+    value: 64
   conv_dim:
     values: [32, 64]
   window_width:
@@ -20,15 +24,15 @@ parameters:
   window_stride:
     value: 8
   fc_dim:
-    values: [512, 1024]
+    values: [128, 256, 512]
   tf_dim:
-    values: [128, 256]
+    values: [64, 128, 256]
   tf_fc_dim:
-    values: [256, 1024]
+    values: [64, 128, 256]
   tf_nhead:
-    values: [4, 8]
+    values: [2, 3, 4]
   tf_layers:
-    values: [2, 4, 6]
+    values: [2, 3, 4]
   lr:
     values: [0.01, 0.001, 0.0003]
   num_workers:
