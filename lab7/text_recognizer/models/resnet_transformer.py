@@ -1,5 +1,5 @@
 import argparse
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 import math
 import torch
 import torch.nn as nn
@@ -22,7 +22,7 @@ class ResnetTransformer(nn.Module):
     def __init__(
         self,
         data_config: Dict[str, Any],
-        args: argparse.Namespace = None,
+        args: Optional[argparse.Namespace] = None,
     ) -> None:
         super().__init__()
         self.data_config = data_config
